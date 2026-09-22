@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WonderPark Explorer - ระบบวางแผนเที่ยวสวนสนุก</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        park: {
+                            purple: '#6C5CE7',
+                            pink: '#FD79A8',
+                            blue: '#0984E3',
+                            yellow: '#FDCB6E',
+                            green: '#00B894',
+                            dark: '#2D3436'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+        .step-active {
+            background-color: #6C5CE7;
+            color: white;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.5);
+        }
+        .step-inactive {
+            background-color: #e2e8f0;
+            color: #64748b;
+        }
+        /* Canvas QR Styling */
+        #qrCanvas {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 text-gray-800">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header / Navbar -->
+        <header class="glass-card rounded-2xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4 border-b-4 border-purple-500">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-ferris-wheel animate-spin" style="animation-duration: 12s;"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                        WonderPark Explorer
+                    </h1>
+                    <p class="text-xs text-gray-500 font-medium">ระบบแผนที่และนำทางสวนสนุกอัจฉริยะ (Discrete Math Project)</p>
+                </div>
+            </div>
+
+            <!-- Discrete Math Info Badge -->
+            <div class="hidden md:flex items-center gap-2 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200 text-xs text-purple-700">
+                <i class="fa-solid fa-diagram-project"></i>
+                <span>Graph Theory (Dijkstra) & Tree Hierarchy Applied</span>
+            </div>
+        </header>
+
+        <!-- Navigation Stepper (4 Screens) -->
+        <div class="glass-card rounded-2xl p-3 mb-6">
+            <div class="grid grid-cols-4 gap-2 text-center text-xs md:text-sm font-medium">
+                <button onclick="goToScreen(1)" id="step-btn-1" class="step-active rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs">1</span>
+                    <span>ค้นหาเครื่องเล่น</span>
+                </button>
+                <button onclick="goToScreen(2)" id="step-btn-2" class="step-inactive rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-xs">2</span>
+                    <span>เปรียบเทียบเส้นทาง</span>
+                </button>
+                <button onclick="goToScreen(3)" id="step-btn-3" class="step-inactive rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-xs">3</span>
+                    <span>แผนที่นำทาง</span>
+                </button>
+                <button onclick="goToScreen(4)" id="step-btn-4" class="step-inactive rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-xs">4</span>
+                    <span>รับบัตร FastPass</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== SCREEN 1: SEARCH & TREE SELECTOR ==================== -->
+        <div id="screen-1" class="space-y-6">
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Search & Selection Panel -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 shadow-md">
+                    <h2 class="text-xl font-bold mb-1 text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-purple-600"></i> วันนี้อยากไปเล่นอะไรใน WonderPark?
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-6">เลือกจุดเริ่มต้นและจุดหมายปลายทาง โดยระบบจะดึงข้อมูลจากโครงสร้าง Tree 4 ระดับ</p>
+
+                    <div class="space-y-4">
+                        <!-- Start Location Input -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                <i class="fa-solid fa-location-dot text-green-500 mr-1"></i> จุดเริ่มต้น (Start Vertex)
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="start-display" readonly value="ประตูทางเข้าหลัก (Entrance)" 
+                                    class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
+                                <button onclick="openTreePicker('start')" class="bg-purple-100 text-purple-700 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-200 transition">
+                                    <i class="fa-solid fa-sitemap mr-1"></i> เลือกจาก Tree
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Swap Button -->
+                        <div class="flex justify-center -my-2">
+                            <button onclick="swapLocations()" class="w-9 h-9 bg-white border-2 border-purple-400 rounded-full text-purple-600 hover:bg-purple-50 shadow-md transition flex items-center justify-center">
+                                <i class="fa-solid fa-arrows-up-down"></i>
+                            </button>
+                        </div>
+
+                        <!-- Destination Input -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">
+                                <i class="fa-solid fa-flag-checkered text-red-500 mr-1"></i> จุดหมายปลายทาง (Destination Vertex)
+                            </label>
+                            <div class="flex gap-2">
+                                <input type="text" id="dest-display" readonly value="รถไฟเหาะมังกร (Dragon Coaster)" 
+                                    class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
+                                <button onclick="openTreePicker('dest')" class="bg-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-700 transition shadow">
+                                    <i class="fa-solid fa-sitemap mr-1"></i> เลือกจาก Tree
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Popular Shortcuts -->
+                        <div class="pt-4 border-t border-gray-200">
+                            <label class="block text-xs font-semibold text-gray-500 mb-2">ทางลัดเครื่องเล่นยอดนิยม (Quick Shortcuts):</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="quickSelect('Dragon Coaster')" class="bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                    🎢 รถไฟเหาะมังกร
+                                </button>
+                                <button onclick="quickSelect('Giant Ferris Wheel')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                    🎡 ชิงช้าสวรรค์ยักษ์
+                                </button>
+                                <button onclick="quickSelect('Dino Water Splash')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                    🌊 ล่องแก่งไดโนเสาร์
+                                </button>
+                                <button onclick="quickSelect('Grand Castle')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                    🏰 ปราสาทเทพนิยาย
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="pt-2">
+                            <button onclick="calculateAndGoToScreen2()" class="w-full btn-gradient text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-base">
+                                <i class="fa-solid fa-route"></i> ค้นหาเส้นทางที่ดีที่สุด (Run Dijkstra)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tree Mathematical Explanation Card -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-purple-500 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-purple-700 font-bold mb-2">
+                            <i class="fa-solid fa-tree text-lg"></i>
+                            <h3>โครงสร้าง Rooted Tree (บทที่ 7)</h3>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3 leading-relaxed">
+                            ระบบจัดเก็บหมวดหมู่เครื่องเล่นด้วย **Rooted Tree 4 ระดับ** เพื่อใช้ไล่ระดับเลือกสถานที่ (Root &rarr; Zone &rarr; Category &rarr; Leaf):
+                        </p>
+                        <ul class="text-xs space-y-1.5 text-gray-700 bg-purple-50/70 p-3 rounded-xl border border-purple-100 font-mono">
+                            <li><strong class="text-purple-800">Level 0 (Root):</strong> WonderPark</li>
+                            <li><strong class="text-purple-800">Level 1 (Internal):</strong> Zones (e.g. Thrill Zone)</li>
+                            <li><strong class="text-purple-800">Level 2 (Internal):</strong> Category (e.g. Extreme Rides)</li>
+                            <li><strong class="text-purple-800">Level 3 (Leaf):</strong> Attraction (e.g. Dragon Coaster)</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                        <i class="fa-solid fa-circle-info text-purple-500 mr-1"></i> Leaf คือสถานที่จริงที่ใช้เป็น Vertex ในการคำนวณ Graph
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SCREEN 2: COMPARE ROUTES (DIJKSTRA) ==================== -->
+        <div id="screen-2" class="hidden space-y-6">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-2 border-b pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-code-compare text-purple-600"></i> ผลการเปรียบเทียบเส้นทาง (Dijkstra's Algorithm)
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            จาก <span id="route-start-label" class="font-bold text-purple-700"></span> ถึง <span id="route-dest-label" class="font-bold text-pink-600"></span>
+                        </p>
+                    </div>
+                    <button onclick="goToScreen(1)" class="text-xs text-purple-600 hover:text-purple-800 font-semibold bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> เปลี่ยนจุดหมาย
+                    </button>
+                </div>
+
+                <!-- 3 Route Cards calculated by Dijkstra with different Weight functions -->
+                <div class="grid md:grid-cols-3 gap-6" id="route-cards-container">
+                    <!-- Dynamic cards injected via JS -->
+                </div>
+
+                <!-- Dijkstra Algorithm Concept Card -->
+                <div class="mt-8 bg-blue-50/80 border border-blue-200 rounded-2xl p-5 text-xs text-blue-900">
+                    <h4 class="font-bold text-sm mb-2 text-blue-800 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> หลักการทางคณิตศาสตร์ดิสครีต: Weighted Graph & Dijkstra Algorithm
+                    </h4>
+                    <p class="mb-2 leading-relaxed">
+                        ระบบใช้คำนวณ Shortest Path ตามขั้นตอน Dijkstra โดยตั้งค่าระยะทางเริ่มต้น $dist[s] = 0$ และจุดอื่น $dist[v] = \infty$ แล้วเลือก Vertex ที่มี Cost น้อยที่สุดที่ยังไม่ถูกปิด ตรวจสอบ Neighbor และทำการ Relax ค่า weight
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 font-mono bg-white p-3 rounded-xl border border-blue-100">
+                        <div><strong>1. เดินเร็วที่สุด:</strong> Cost = Time</div>
+                        <div><strong>2. เวลารอน้อยสุด:</strong> Cost = Queue</div>
+                        <div><strong>3. เส้นทางสมดุล:</strong> Cost = Time + (Queue &times; 0.5)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SCREEN 3: MAP & ITINERARY ==================== -->
+        <div id="screen-3" class="hidden space-y-6">
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- SVG Graph Visualizer -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-map-location-dot text-purple-600"></i> แผนที่จำลองโครงสร้าง กราฟถ่วงน้ำหนัก (Weighted Graph Map)
+                        </h3>
+                        <span id="active-option-badge" class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-bold"></span>
+                    </div>
+
+                    <!-- SVG Container for Interactive Graph Visualization -->
+                    <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner" style="height: 380px;">
+                        <svg id="park-graph-svg" class="w-full h-full" viewBox="0 0 600 350">
+                            <!-- SVG lines and nodes drawn dynamically in JS -->
+                        </svg>
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-600 justify-center bg-gray-50 p-2.5 rounded-xl">
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span> จุดเริ่มต้น</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span> ปลายทาง</div>
+                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> จุดแวะพัก (Node)</div>
+                        <div class="flex items-center gap-1.5"><span class="w-4 h-1 bg-pink-500 inline-block"></span> เส้นทาง Shortest Path</div>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Itinerary -->
+                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-base mb-4 pb-2 border-b flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-purple-600"></i> ขั้นตอนการเดิน (Itinerary Path)
+                        </h3>
+                        <div id="itinerary-steps" class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t mt-4">
+                        <button onclick="goToScreen(4)" class="w-full btn-gradient text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+                            ยืนยันเส้นทาง & ออกบัตร FastPass <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SCREEN 4: FASTPASS TICKET & SUMMARY ==================== -->
+        <div id="screen-4" class="hidden space-y-6">
+            <div class="max-w-2xl mx-auto glass-card rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-purple-300 relative overflow-hidden">
+                <!-- Decorative Top Banner -->
+                <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-400"></div>
+
+                <div class="text-center mb-6 pt-2">
+                    <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        WonderPark Official FastPass
+                    </span>
+                    <h2 class="text-2xl font-extrabold text-gray-800 mt-2">บัตรผ่านเครื่องเล่น & สรุปแผนการเที่ยว</h2>
+                    <p class="text-xs text-gray-500">ผลลัพธ์คำนวณขั้นสุดท้ายจาก Dijkstra Algorithm</p>
+                </div>
+
+                <!-- Ticket Info Container -->
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-2xl border border-purple-100 mb-6 space-y-4">
+                    <div class="flex justify-between items-center border-b border-purple-200 pb-3">
+                        <div>
+                            <span class="text-xs text-gray-500">ต้นทาง &rarr; ปลายทาง</span>
+                            <div class="font-bold text-purple-900 text-base" id="ticket-route-name">-</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-gray-500">ประเภทเส้นทาง</span>
+                            <div class="font-bold text-pink-600 text-sm" id="ticket-mode-name">-</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
+                            <span class="text-[10px] text-gray-500 block">เวลาเดินรวม</span>
+                            <span class="text-lg font-bold text-purple-700" id="ticket-walk-time">0</span>
+                            <span class="text-[10px] text-gray-500"> นาที</span>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
+                            <span class="text-[10px] text-gray-500 block">เวลารอคิวรวม</span>
+                            <span class="text-lg font-bold text-pink-600" id="ticket-queue-time">0</span>
+                            <span class="text-[10px] text-gray-500"> นาที</span>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
+                            <span class="text-[10px] text-gray-500 block">เวลารวมทั้งหมด</span>
+                            <span class="text-lg font-bold text-green-600" id="ticket-total-time">0</span>
+                            <span class="text-[10px] text-gray-500"> นาที</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-xs text-gray-500 block mb-1">ลำดับ Node ใน Path (Vertex Sequence):</span>
+                        <div class="font-mono text-xs bg-white p-2.5 rounded-xl border border-purple-100 text-purple-800 break-words" id="ticket-path-seq">
+                            -
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated QR Code Canvas -->
+                <div class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-dashed border-gray-300 mb-6">
+                    <canvas id="qrCanvas" width="160" height="160" class="mb-2"></canvas>
+                    <p class="text-[11px] text-gray-400 font-mono" id="ticket-code-str">PASS-WP-2026-X99</p>
+                    <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-qrcode mr-1"></i> สแกน QR Code ที่ทางเข้าเครื่องเล่นเพื่อใช้ช่อง FastPass</p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button onclick="window.print()" class="w-1/2 bg-gray-800 text-white font-bold py-3 rounded-xl hover:bg-gray-900 transition flex items-center justify-center gap-2 text-sm shadow">
+                        <i class="fa-solid fa-print"></i> พิมพ์บัตร FastPass
+                    </button>
+                    <button onclick="goToScreen(1)" class="w-1/2 btn-gradient text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-rotate-left"></i> วางแผนเส้นทางใหม่
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TREE PICKER MODAL -->
+    <div id="tree-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-card rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-sitemap text-purple-600"></i> เลือกจุดหมายจาก Rooted Tree
+                </h3>
+                <button onclick="closeTreePicker()" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-gray-500">คลิกขยายโหนด Parent เพื่อลงไปยัง Leaf (สถานที่จริง)</p>
+
+            <!-- Interactive Tree Navigation Area -->
+            <div id="tree-container" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="pt-3 border-t text-right">
+                <button onclick="closeTreePicker()" class="bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl text-xs hover:bg-gray-300 transition">
+                    ยกเลิก
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC (DISCRETE MATH GRAPH & TREE IMPLEMENTATION) -->
+    <script>
+        /* ==================== 1. DISCRETE MATH DATA STRUCTURES ==================== */
+
+        // --- A. TREE STRUCTURE (Rooted Tree 4 Levels for Hierarchy) ---
+        // Root (Level 0) -> Zone (Level 1) -> Category (Level 2) -> Attraction Leaf (Level 3)
+        const parkTree = {
+            name: "WonderPark สวนสนุกรวม",
+            type: "Root",
+            children: [
+                {
+                    name: "โซนหวาดเสียว (Thrill Zone)",
+                    type: "Zone",
+                    children: [
+                        {
+                            name: "เครื่องเล่นความเร็วสูง",
+                            type: "Category",
+                            children: [
+                                { name: "รถไฟเหาะมังกร (Dragon Coaster)", nodeKey: "Dragon Coaster", type: "Leaf" },
+                                { name: "หอคอยท้าความสูง (Sky Drop)", nodeKey: "Sky Drop", type: "Leaf" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "โซนเทพนิยาย (Fantasy Zone)",
+                    type: "Zone",
+                    children: [
+                        {
+                            name: "เครื่องเล่นครอบครัว",
+                            type: "Category",
+                            children: [
+                                { name: "ชิงช้าสวรรค์ยักษ์ (Giant Ferris Wheel)", nodeKey: "Giant Ferris Wheel", type: "Leaf" },
+                                { name: "ม้าหมุนเวทมนตร์ (Carousel)", nodeKey: "Carousel", type: "Leaf" }
+                            ]
+                        },
+                        {
+                            name: "จุดชมวิว & ถ่ายภาพ",
+                            type: "Category",
+                            children: [
+                                { name: "ปราสาทเทพนิยาย (Grand Castle)", nodeKey: "Grand Castle", type: "Leaf" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "โซนการผจญภัย (Adventure Zone)",
+                    type: "Zone",
+                    children: [
+                        {
+                            name: "เครื่องเล่นทางน้ำ & สยองขวัญ",
+                            type: "Category",
+                            children: [
+                                { name: "ล่องแก่งไดโนเสาร์ (Dino Water Splash)", nodeKey: "Dino Water Splash", type: "Leaf" },
+                                { name: "บ้านผีสิง (Haunted Mansion)", nodeKey: "Haunted Mansion", type: "Leaf" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "โซนจุดบริการ & ทางเข้า (Services)",
+                    type: "Zone",
+                    children: [
+                        {
+                            name: "ประตูทางเข้า & ศูนย์อาหาร",
+                            type: "Category",
+                            children: [
+                                { name: "ประตูทางเข้าหลัก (Entrance)", nodeKey: "Entrance", type: "Leaf" },
+                                { name: "ศูนย์อาหารพลาซ่า (Food Plaza)", nodeKey: "Food Plaza", type: "Leaf" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // --- B. WEIGHTED GRAPH (Adjacency List with 7 Vertices and 11 Edges) ---
+        // Vertices: Entrance, Dragon Coaster, Giant Ferris Wheel, Dino Water Splash, Grand Castle, Haunted Mansion, Food Plaza
+        // Edge Weights: walkTime (นาที), queueTime (นาที)
+        const parkGraph = {
+            "Entrance": [
+                { to: "Food Plaza", walkTime: 3, queueTime: 0 },
+                { to: "Giant Ferris Wheel", walkTime: 5, queueTime: 10 }
+            ],
+            "Food Plaza": [
+                { to: "Entrance", walkTime: 3, queueTime: 0 },
+                { to: "Dragon Coaster", walkTime: 4, queueTime: 30 },
+                { to: "Haunted Mansion", walkTime: 6, queueTime: 15 },
+                { to: "Grand Castle", walkTime: 3, queueTime: 5 }
+            ],
+            "Giant Ferris Wheel": [
+                { to: "Entrance", walkTime: 5, queueTime: 0 },
+                { to: "Grand Castle", walkTime: 2, queueTime: 5 },
+                { to: "Dino Water Splash", walkTime: 7, queueTime: 20 }
+            ],
+            "Dragon Coaster": [
+                { to: "Food Plaza", walkTime: 4, queueTime: 0 },
+                { to: "Haunted Mansion", walkTime: 3, queueTime: 15 },
+                { to: "Grand Castle", walkTime: 5, queueTime: 5 }
+            ],
+            "Grand Castle": [
+                { to: "Food Plaza", walkTime: 3, queueTime: 0 },
+                { to: "Giant Ferris Wheel", walkTime: 2, queueTime: 10 },
+                { to: "Dragon Coaster", walkTime: 5, queueTime: 30 },
+                { to: "Dino Water Splash", walkTime: 4, queueTime: 20 }
+            ],
+            "Dino Water Splash": [
+                { to: "Giant Ferris Wheel", walkTime: 7, queueTime: 10 },
+                { to: "Grand Castle", walkTime: 4, queueTime: 5 },
+                { to: "Haunted Mansion", walkTime: 5, queueTime: 15 }
+            ],
+            "Haunted Mansion": [
+                { to: "Food Plaza", walkTime: 6, queueTime: 0 },
+                { to: "Dragon Coaster", walkTime: 3, queueTime: 30 },
+                { to: "Dino Water Splash", walkTime: 5, queueTime: 20 }
+            ]
+        };
+
+        // Graph Layout Coordinates for SVG Map Rendering
+        const nodeCoordinates = {
+            "Entrance": { x: 80, y: 300, label: "ประตูทางเข้า" },
+            "Food Plaza": { x: 220, y: 220, label: "ศูนย์อาหาร" },
+            "Giant Ferris Wheel": { x: 180, y: 80, label: "ชิงช้าสวรรค์" },
+            "Grand Castle": { x: 340, y: 130, label: "ปราสาทเทพนิยาย" },
+            "Dragon Coaster": { x: 420, y: 280, label: "รถไฟเหาะมังกร" },
+            "Dino Water Splash": { x: 520, y: 80, label: "ล่องแก่งไดโนเสาร์" },
+            "Haunted Mansion": { x: 530, y: 220, label: "บ้านผีสิง" }
+        };
+
+        /* ==================== 2. DIJKSTRA ALGORITHM IMPLEMENTATION ==================== */
+        function runDijkstra(startNode, targetNode, costType) {
+            const distances = {};
+            const previous = {};
+            const unvisited = new Set();
+
+            // Initialize distances & sets
+            Object.keys(parkGraph).forEach(node => {
+                distances[node] = Infinity;
+                previous[node] = null;
+                unvisited.add(node);
+            });
+
+            distances[startNode] = 0;
+
+            while (unvisited.size > 0) {
+                // Find node with minimum distance in unvisited
+                let current = null;
+                unvisited.forEach(node => {
+                    if (current === null || distances[node] < distances[current]) {
+                        current = node;
+                    }
+                });
+
+                if (current === null || distances[current] === Infinity) break;
+                if (current === targetNode) break;
+
+                unvisited.delete(current);
+
+                // Examine neighbors
+                const neighbors = parkGraph[current] || [];
+                neighbors.forEach(edge => {
+                    if (unvisited.has(edge.to)) {
+                        // Calculate weight based on strategy
+                        let weight = 0;
+                        if (costType === 'fastest') {
+                            weight = edge.walkTime; // Focus on shortest walk
+                        } else if (costType === 'minQueue') {
+                            weight = edge.walkTime + edge.queueTime; // Focus on queue time
+                        } else {
+                            weight = edge.walkTime + (edge.queueTime * 0.5); // Balanced
+                        }
+
+                        const alt = distances[current] + weight;
+                        if (alt < distances[edge.to]) {
+                            distances[edge.to] = alt;
+                            previous[edge.to] = current;
+                        }
+                    }
+                });
+            }
+
+            // Reconstruct path
+            const path = [];
+            let curr = targetNode;
+            while (curr !== null) {
+                path.unshift(curr);
+                curr = previous[curr];
+            }
+
+            // Calculate totals
+            let totalWalkTime = 0;
+            let totalQueueTime = 0;
+
+            for (let i = 0; i < path.length - 1; i++) {
+                const u = path[i];
+                const v = path[i + 1];
+                const edge = parkGraph[u].find(e => e.to === v);
+                if (edge) {
+                    totalWalkTime += edge.walkTime;
+                    totalQueueTime += edge.queueTime;
+                }
+            }
+
+            return {
+                path: path,
+                totalWalkTime: totalWalkTime,
+                totalQueueTime: totalQueueTime,
+                totalTime: totalWalkTime + totalQueueTime
+            };
+        }
+
+        /* ==================== 3. APP STATE & NAVIGATION ==================== */
+        let selectedStartKey = "Entrance";
+        let selectedDestKey = "Dragon Coaster";
+        let currentTargetInput = "start"; // 'start' or 'dest'
+        let calculatedRoutes = {};
+        let activeRouteOption = "fastest"; // 'fastest', 'minQueue', 'balanced'
+
+        function goToScreen(screenNumber) {
+            // Toggle screen visibility
+            for (let i = 1; i <= 4; i++) {
+                const screen = document.getElementById(`screen-${i}`);
+                const btn = document.getElementById(`step-btn-${i}`);
+                if (i === screenNumber) {
+                    screen.classList.remove('hidden');
+                    btn.className = "step-active rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5";
+                } else {
+                    screen.classList.add('hidden');
+                    btn.className = "step-inactive rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5";
+                }
+            }
+
+            if (screenNumber === 3) {
+                renderSVGMap();
+                renderItinerary();
+            } else if (screenNumber === 4) {
+                renderFastPassTicket();
+            }
+        }
+
+        /* ==================== 4. TREE SELECTION MODAL ==================== */
+        function openTreePicker(target) {
+            currentTargetInput = target;
+            const modal = document.getElementById('tree-modal');
+            const container = document.getElementById('tree-container');
+            container.innerHTML = buildTreeHTML(parkTree);
+            modal.classList.remove('hidden');
+        }
+
+        function closeTreePicker() {
+            document.getElementById('tree-modal').classList.add('hidden');
+        }
+
+        function buildTreeHTML(node) {
+            if (node.type === "Leaf") {
+                return `
+                    <div onclick="selectLeafNode('${node.nodeKey}', '${node.name}')" 
+                        class="p-2.5 bg-purple-50 hover:bg-purple-600 hover:text-white rounded-xl cursor-pointer text-xs font-medium transition flex items-center justify-between border border-purple-100">
+                        <span><i class="fa-solid fa-location-pin text-pink-500 mr-2"></i> ${node.name}</span>
+                        <span class="text-[10px] bg-white text-purple-700 px-2 py-0.5 rounded-full font-bold">Leaf</span>
+                    </div>
+                `;
+            }
+
+            let childrenHTML = node.children.map(child => buildTreeHTML(child)).join('');
+            
+            return `
+                <details open class="mb-2 bg-white/80 rounded-xl p-2 border border-gray-200">
+                    <summary class="font-bold text-gray-700 text-xs cursor-pointer hover:text-purple-600 flex items-center gap-1">
+                        <i class="fa-solid fa-folder-tree text-purple-500"></i> ${node.name}
+                    </summary>
+                    <div class="pl-3 pt-2 space-y-1 border-l-2 border-purple-200 ml-1.5 mt-1">
+                        ${childrenHTML}
+                    </div>
+                </details>
+            `;
+        }
+
+        function selectLeafNode(nodeKey, fullName) {
+            if (currentTargetInput === 'start') {
+                selectedStartKey = nodeKey;
+                document.getElementById('start-display').value = fullName;
+            } else {
+                selectedDestKey = nodeKey;
+                document.getElementById('dest-display').value = fullName;
+            }
+            closeTreePicker();
+        }
+
+        function quickSelect(destKey) {
+            selectedDestKey = destKey;
+            const nodeNames = {
+                'Dragon Coaster': 'รถไฟเหาะมังกร (Dragon Coaster)',
+                'Giant Ferris Wheel': 'ชิงช้าสวรรค์ยักษ์ (Giant Ferris Wheel)',
+                'Dino Water Splash': 'ล่องแก่งไดโนเสาร์ (Dino Water Splash)',
+                'Grand Castle': 'ปราสาทเทพนิยาย (Grand Castle)'
+            };
+            document.getElementById('dest-display').value = nodeNames[destKey] || destKey;
+        }
+
+        function swapLocations() {
+            const temp = selectedStartKey;
+            selectedStartKey = selectedDestKey;
+            selectedDestKey = temp;
+
+            const tempVal = document.getElementById('start-display').value;
+            document.getElementById('start-display').value = document.getElementById('dest-display').value;
+            document.getElementById('dest-display').value = tempVal;
+        }
+
+        /* ==================== 5. CALCULATE & COMPARE SCREEN ==================== */
+        function calculateAndGoToScreen2() {
+            if (selectedStartKey === selectedDestKey) {
+                alert('กรุณาเลือกจุดเริ่มต้นและจุดหมายปลายทางให้ต่างกัน');
+                return;
+            }
+
+            // Run Dijkstra for 3 scenarios
+            calculatedRoutes = {
+                fastest: runDijkstra(selectedStartKey, selectedDestKey, 'fastest'),
+                minQueue: runDijkstra(selectedStartKey, selectedDestKey, 'minQueue'),
+                balanced: runDijkstra(selectedStartKey, selectedDestKey, 'balanced')
+            };
+
+            document.getElementById('route-start-label').innerText = selectedStartKey;
+            document.getElementById('route-dest-label').innerText = selectedDestKey;
+
+            const container = document.getElementById('route-cards-container');
+            container.innerHTML = `
+                ${renderRouteCard('fastest', '⚡ เส้นทางเดินเร็วที่สุด', 'เน้นระยะเวลาเดินสั้นที่สุด', calculatedRoutes.fastest, 'border-purple-500', 'bg-purple-500')}
+                ${renderRouteCard('minQueue', '⏳ เส้นทางเวลารอน้อยสุด', 'เลือกทางเดินที่คิวยาวน้อยกว่า', calculatedRoutes.minQueue, 'border-pink-500', 'bg-pink-500')}
+                ${renderRouteCard('balanced', '🎯 เส้นทางสมดุลที่สุด', 'สมดุลระหว่างเวลาเดินและเวลารอคิว', calculatedRoutes.balanced, 'border-blue-500', 'bg-blue-500')}
+            `;
+
+            goToScreen(2);
+        }
+
+        function renderRouteCard(typeKey, title, desc, routeData, borderColor, badgeColor) {
+            return `
+                <div class="bg-white rounded-2xl p-5 border-2 ${borderColor} shadow-lg flex flex-col justify-between hover:scale-105 transition-transform duration-300">
+                    <div>
+                        <span class="text-[10px] text-white font-bold px-2.5 py-1 rounded-full ${badgeColor} inline-block mb-2">
+                            Dijkstra Computed
+                        </span>
+                        <h3 class="font-bold text-gray-800 text-lg mb-1">${title}</h3>
+                        <p class="text-xs text-gray-500 mb-4">${desc}</p>
+
+                        <div class="space-y-2 bg-gray-50 p-3 rounded-xl mb-4 border border-gray-100 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500"><i class="fa-solid fa-person-walking text-purple-600"></i> เวลาเดิน:</span>
+                                <span class="font-bold text-gray-800">${routeData.totalWalkTime} นาที</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500"><i class="fa-solid fa-clock text-pink-500"></i> เวลารอคิว:</span>
+                                <span class="font-bold text-gray-800">${routeData.totalQueueTime} นาที</span>
+                            </div>
+                            <div class="flex justify-between pt-1 border-t border-gray-200">
+                                <span class="font-bold text-gray-700">เวลารวมประมาณ:</span>
+                                <span class="font-bold text-purple-700 text-sm">${routeData.totalTime} นาที</span>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-gray-600">
+                            <span class="font-semibold block mb-1">ลำดับโหนด (Path Nodes):</span>
+                            <div class="flex flex-wrap gap-1 font-mono text-[11px]">
+                                ${routeData.path.map(p => `<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">${p}</span>`).join(' &rarr; ')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="selectRouteOption('${typeKey}')" class="mt-6 w-full py-2.5 rounded-xl font-bold text-xs text-white ${badgeColor} shadow hover:opacity-90 transition">
+                        เลือกเส้นทางนี้
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectRouteOption(optionKey) {
+            activeRouteOption = optionKey;
+            goToScreen(3);
+        }
+
+        /* ==================== 6. SCREEN 3: SVG MAP & ITINERARY ==================== */
+        function renderSVGMap() {
+            const svg = document.getElementById('park-graph-svg');
+            const route = calculatedRoutes[activeRouteOption];
+            const activePath = route ? route.path : [];
+
+            document.getElementById('active-option-badge').innerText = 
+                activeRouteOption === 'fastest' ? 'โหมด: เดินเร็วที่สุด' :
+                activeRouteOption === 'minQueue' ? 'โหมด: เวลารอน้อยสุด' : 'โหมด: สมดุล';
+
+            let svgContent = '';
+
+            // 1. Draw Edges (Lines)
+            const drawnEdges = new Set();
+            Object.keys(parkGraph).forEach(u => {
+                parkGraph[u].forEach(edge => {
+                    const v = edge.to;
+                    const edgeKey = [u, v].sort().join('--');
+                    
+                    if (!drawnEdges.has(edgeKey)) {
+                        drawnEdges.add(edgeKey);
+                        const posU = nodeCoordinates[u];
+                        const posV = nodeCoordinates[v];
+
+                        // Check if edge is in active Dijkstra path
+                        let isHighlighted = false;
+                        for (let i = 0; i < activePath.length - 1; i++) {
+                            if ((activePath[i] === u && activePath[i+1] === v) || (activePath[i] === v && activePath[i+1] === u)) {
+                                isHighlighted = true;
+                                break;
+                            }
+                        }
+
+                        const lineColor = isHighlighted ? '#FD79A8' : '#334155';
+                        const strokeWidth = isHighlighted ? '5' : '2';
+                        const dashArray = isHighlighted ? '0' : '4';
+
+                        svgContent += `
+                            <line x1="${posU.x}" y1="${posU.y}" x2="${posV.x}" y2="${posV.y}" 
+                                stroke="${lineColor}" stroke-width="${strokeWidth}" stroke-dasharray="${dashArray}" />
+                            <text x="${(posU.x + posV.x)/2}" y="${(posU.y + posV.y)/2 - 5}" 
+                                fill="${isHighlighted ? '#FD79A8' : '#94a3b8'}" font-size="10" font-weight="bold" text-anchor="middle">
+                                ${edge.walkTime}m
+                            </text>
+                        `;
+                    }
+                });
+            });
+
+            // 2. Draw Vertices (Nodes)
+            Object.keys(nodeCoordinates).forEach(nodeKey => {
+                const pos = nodeCoordinates[nodeKey];
+                const isStart = nodeKey === selectedStartKey;
+                const isDest = nodeKey === selectedDestKey;
+                const isInPath = activePath.includes(nodeKey);
+
+                let nodeColor = '#3b82f6'; // Default blue
+                if (isStart) nodeColor = '#22c55e'; // Green
+                else if (isDest) nodeColor = '#ef4444'; // Red
+                else if (isInPath) nodeColor = '#eab308'; // Yellow path node
+
+                svgContent += `
+                    <g transform="translate(${pos.x}, ${pos.y})">
+                        <circle r="${isStart || isDest ? '16' : '12'}" fill="${nodeColor}" stroke="#ffffff" stroke-width="2" class="shadow-lg" />
+                        <text y="25" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">${pos.label}</text>
+                    </g>
+                `;
+            });
+
+            svg.innerHTML = svgContent;
+        }
+
+        function renderItinerary() {
+            const route = calculatedRoutes[activeRouteOption];
+            const container = document.getElementById('itinerary-steps');
+
+            if (!route) return;
+
+            let html = '';
+            for (let i = 0; i < route.path.length; i++) {
+                const currentNode = route.path[i];
+                const isStart = i === 0;
+                const isLast = i === route.path.length - 1;
+
+                let edgeInfo = null;
+                if (!isLast) {
+                    const nextNode = route.path[i+1];
+                    edgeInfo = parkGraph[currentNode].find(e => e.to === nextNode);
+                }
+
+                html += `
+                    <div class="flex gap-3 relative">
+                        <div class="flex flex-col items-center">
+                            <div class="w-7 h-7 rounded-full ${isStart ? 'bg-green-500' : isLast ? 'bg-red-500' : 'bg-purple-600'} text-white text-xs flex items-center justify-center font-bold shadow">
+                                ${i + 1}
+                            </div>
+                            ${!isLast ? '<div class="w-0.5 h-full bg-purple-200 my-1"></div>' : ''}
+                        </div>
+                        <div class="pb-4">
+                            <h4 class="font-bold text-gray-800 text-xs">${currentNode}</h4>
+                            ${edgeInfo ? `
+                                <p class="text-[11px] text-gray-500 mt-0.5">
+                                    <i class="fa-solid fa-person-walking text-purple-500"></i> เดิน ${edgeInfo.walkTime} นาที
+                                    ${edgeInfo.queueTime > 0 ? `| <i class="fa-solid fa-clock text-pink-500"></i> คิว ${edgeInfo.queueTime} นาที` : ''}
+                                </p>
+                            ` : '<p class="text-[11px] text-green-600 font-semibold mt-0.5">ถึงจุดหมายปลายทางแล้ว!</p>'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        /* ==================== 7. SCREEN 4: FASTPASS TICKET ==================== */
+        function renderFastPassTicket() {
+            const route = calculatedRoutes[activeRouteOption];
+            if (!route) return;
+
+            document.getElementById('ticket-route-name').innerText = `${selectedStartKey} ➔ ${selectedDestKey}`;
+            document.getElementById('ticket-mode-name').innerText = 
+                activeRouteOption === 'fastest' ? 'เดินเร็วที่สุด' :
+                activeRouteOption === 'minQueue' ? 'เวลารอน้อยสุด' : 'เส้นทางสมดุล';
+
+            document.getElementById('ticket-walk-time').innerText = route.totalWalkTime;
+            document.getElementById('ticket-queue-time').innerText = route.totalQueueTime;
+            document.getElementById('ticket-total-time').innerText = route.totalTime;
+
+            document.getElementById('ticket-path-seq').innerText = route.path.join(' ➔ ');
+
+            const ticketCode = `WP-PASS-${Math.floor(100000 + Math.random() * 900000)}`;
+            document.getElementById('ticket-code-str').innerText = ticketCode;
+
+            // Generate Simulated Canvas QR Code
+            generateCanvasQR('qrCanvas', ticketCode);
+        }
+
+        function generateCanvasQR(canvasId, text) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Clear background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw QR-like Matrix Pattern
+            ctx.fillStyle = '#2D3436';
+            const gridSize = 8;
+            const cellSize = width / gridSize;
+
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    // Position Finder Patterns on corners
+                    if ((r < 2 && c < 2) || (r < 2 && c >= gridSize - 2) || (r >= gridSize - 2 && c < 2)) {
+                        ctx.fillStyle = '#6C5CE7';
+                        ctx.fillRect(c * cellSize + 2, r * cellSize + 2, cellSize - 4, cellSize - 4);
+                    } else {
+                        ctx.fillStyle = Math.random() > 0.4 ? '#2D3436' : '#FFFFFF';
+                        ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2);
+                    }
+                }
+            }
+        }
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            goToScreen(1);
+        };
+    </script>
+</body>
+</html>
