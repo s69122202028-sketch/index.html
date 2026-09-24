@@ -249,71 +249,114 @@
         </div>
 
         <!-- ==================== SCREEN 3: MAP & ITINERARY ==================== -->
-        <div id="screen-3" class="hidden space-y-6">
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- SVG Graph Visualizer -->
-                <div class="md:col-span-2 glass-card rounded-2xl p-5">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-map-location-dot text-purple-600"></i> แผนที่จำลองโครงสร้าง กราฟถ่วงน้ำหนัก (Weighted Graph Map)
-                        </h3>
-                        <span id="active-option-badge" class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-bold"></span>
-                    </div>
+<div id="screen-3" class="hidden space-y-6">
 
-                   <!-- SVG Canvas Container for Interactive Graph Visualization -->
-                <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner"
-                     style="height: 380px;">
+    <div class="grid md:grid-cols-3 gap-6">
 
-                <canvas id="park-graph-canvas"
-                        width="800"
-                        height="450"    
-                        class="w-full h-full">
+        <!-- Graph Map -->
+        <div class="md:col-span-2 glass-card rounded-2xl p-5">
+
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-purple-600"></i>
+                    แผนที่จำลองโครงสร้าง Weighted Graph
+                </h3>
+
+                <span id="active-option-badge"
+                      class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-bold">
+                </span>
+            </div>
+
+            <!-- Canvas Graph -->
+            <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner"
+                 style="height: 380px;">
+
+                <canvas
+                    id="park-graph-canvas"
+                    width="800"
+                    height="450"
+                    class="w-full h-full">
                 </canvas>
 
-                        </div>
-                    </div>
+            </div>
 
-                    <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-600 justify-center bg-gray-50 p-2.5 rounded-xl">
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span> จุดเริ่มต้น</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span> ปลายทาง</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span> จุดแวะพัก (Node)</div>
-                        <div class="flex items-center gap-1.5"><span class="w-4 h-1 bg-pink-500 inline-block"></span> เส้นทาง Shortest Path</div>
-                    </div>
+            <!-- Graph Legend -->
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-600 justify-center bg-gray-50 p-2.5 rounded-xl">
+
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                    จุดเริ่มต้น
                 </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                    ปลายทาง
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
+                    Vertex ใน Path
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <span class="w-4 h-1 bg-pink-500 inline-block"></span>
+                    Shortest Path
+                </div>
+
+            </div>
 
             <!-- Adjacency List -->
-        <div class="mt-5">
+            <div class="mt-5">
 
-    <h3 class="font-bold text-gray-800 text-base mb-3">
-        Adjacency List
-    </h3>
+                <h3 class="font-bold text-gray-800 text-base mb-3">
+                    Adjacency List
+                </h3>
 
-    <p class="text-xs text-gray-500 mb-3">
-        รายการ Vertex ที่เชื่อมต่อกัน พร้อมน้ำหนักของ Edge
-    </p>
+                <p class="text-xs text-gray-500 mb-3">
+                    รายการ Vertex ที่เชื่อมต่อกัน พร้อมน้ำหนักของ Edge
+                </p>
 
-    <div id="adjacency-list"></div>
+                <div id="adjacency-list"></div>
+
+            </div>
+
+        </div>
+
+        <!-- Itinerary -->
+        <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
+
+            <div>
+
+                <h3 class="font-bold text-gray-800 text-base mb-4 pb-2 border-b flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-purple-600"></i>
+                    ขั้นตอนการเดิน (Itinerary Path)
+                </h3>
+
+                <div id="itinerary-steps"
+                     class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                </div>
+
+            </div>
+
+            <div class="pt-4 border-t mt-4">
+
+                <button
+                    onclick="goToScreen(4)"
+                    class="w-full btn-gradient text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
+
+                    ยืนยันเส้นทาง & ออกบัตร FastPass
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
-                <!-- Step-by-Step Itinerary -->
-                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base mb-4 pb-2 border-b flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-purple-600"></i> ขั้นตอนการเดิน (Itinerary Path)
-                        </h3>
-                        <div id="itinerary-steps" class="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t mt-4">
-                        <button onclick="goToScreen(4)" class="w-full btn-gradient text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2">
-                            ยืนยันเส้นทาง & ออกบัตร FastPass <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
                 
         <!-- ==================== SCREEN 4: FASTPASS TICKET & SUMMARY ==================== -->
         <div id="screen-4" class="hidden space-y-6">
@@ -550,6 +593,48 @@
                 { to: "Haunted Mansion", walkTime: 3, queueTime: 20 }
           ]
     };
+        const nodeCoordinates = {
+    "Entrance": {
+        x: 80,
+        y: 220,
+        label: "Entrance"
+    },
+    "Food Plaza": {
+        x: 220,
+        y: 120,
+        label: "Food Plaza"
+    },
+    "Giant Ferris Wheel": {
+        x: 220,
+        y: 330,
+        label: "Ferris Wheel"
+    },
+    "Grand Castle": {
+        x: 380,
+        y: 220,
+        label: "Grand Castle"
+    },
+    "Dragon Coaster": {
+        x: 520,
+        y: 120,
+        label: "Dragon Coaster"
+    },
+    "Dino Water Splash": {
+        x: 520,
+        y: 330,
+        label: "Dino Splash"
+    },
+    "Haunted Mansion": {
+        x: 680,
+        y: 220,
+        label: "Haunted Mansion"
+    },
+    "Sky Drop": {
+        x: 680,
+        y: 90,
+        label: "Sky Drop"
+    }
+};
 // =========================
 // ADJACENCY LIST
 // =========================
@@ -590,17 +675,70 @@ function renderAdjacencyList() {
 
     container.innerHTML = html;
 }   
-        // Graph Layout Coordinates for SVG Map Rendering
-        const nodeCoordinates = {
-            "Entrance": { x: 80, y: 300, label: "ประตูทางเข้า" },
-            "Food Plaza": { x: 220, y: 220, label: "ศูนย์อาหาร" },
-            "Giant Ferris Wheel": { x: 180, y: 80, label: "ชิงช้าสวรรค์" },
-            "Grand Castle": { x: 340, y: 130, label: "ปราสาทเทพนิยาย" },
-            "Dragon Coaster": { x: 420, y: 280, label: "รถไฟเหาะมังกร" },
-            "Dino Water Splash": { x: 520, y: 80, label: "ล่องแก่งไดโนเสาร์" },
-            "Haunted Mansion": { x: 530, y: 220, label: "บ้านผีสิง" }
-        };
+        <div class="mt-5 bg-purple-50 border border-purple-200 rounded-xl p-4">
 
+    <h3 class="font-bold text-purple-800 mb-2">
+        Graph Traversal
+    </h3>
+
+    <p class="text-xs text-gray-600 mb-3">
+        ทดลองค้นหาเส้นทางด้วย Breadth First Search (BFS)
+        และ Depth First Search (DFS)
+    </p>
+
+    <div class="flex gap-2">
+
+        <button
+            onclick="runBFSExample()"
+            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+            Run BFS
+        </button>
+
+        <button
+            onclick="runDFSExample()"
+            class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg text-xs font-bold">
+            Run DFS
+        </button>
+
+    </div>
+
+    <div
+        id="traversal-result"
+        class="mt-3 bg-white rounded-lg p-3 text-xs font-mono text-gray-700">
+        ยังไม่ได้เลือก Algorithm
+    </div>
+
+</div>
+        function runBFSExample() {
+
+    const path = bfs(
+        selectedStartKey,
+        selectedDestKey
+    );
+
+    document.getElementById("traversal-result").innerHTML = `
+        <strong>BFS Path:</strong><br>
+        ${path.length > 0
+            ? path.join(" → ")
+            : "ไม่พบเส้นทาง"}
+    `;
+}
+
+
+function runDFSExample() {
+
+    const path = dfs(
+        selectedStartKey,
+        selectedDestKey
+    );
+
+    document.getElementById("traversal-result").innerHTML = `
+        <strong>DFS Path:</strong><br>
+        ${path.length > 0
+            ? path.join(" → ")
+            : "ไม่พบเส้นทาง"}
+    `;
+}
         /* ==================== 2. DIJKSTRA ALGORITHM IMPLEMENTATION ==================== */
         function runDijkstra(startNode, targetNode, costType) {
             const distances = {};
@@ -819,11 +957,10 @@ function dfs(start, target) {
             if (screenNumber === 3) {
                 renderCanvasMap();
                 renderItinerary();
-            }
             } else if (screenNumber === 4) {
                 renderFastPassTicket();
             }
-
+        }
         /* ==================== 4. TREE SELECTION MODAL ==================== */
         function openTreePicker(target) {
             currentTargetInput = target;
@@ -994,57 +1131,6 @@ function dfs(start, target) {
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
         // ตำแหน่ง Vertex
-                    const nodeCoordinates = {
-
-                "Entrance": {
-                         x: 80,
-                         y: 220,
-                     label: "Entrance"
-                },
-
-                "Food Plaza": {
-                           x: 220,
-                           y: 120,
-                       label: "Food Plaza"
-                },
-
-                "Giant Ferris Wheel": {
-                                   x: 220,
-                                   y: 330,
-                               label: "Ferris Wheel"
-                },
-
-                "Grand Castle": {
-                             x: 380,
-                             y: 220,
-                         label: "Grand Castle"
-                },
-
-                "Dragon Coaster": {
-                               x: 520,
-                               y: 120,
-                           label: "Dragon Coaster"
-                },
-
-                "Dino Water Splash": {
-                                  x: 520,
-                                  y: 330,
-                              label: "Dino Splash"
-                },
-
-                "Haunted Mansion": {
-                                x: 680,
-                                y: 220,
-                            label: "Haunted Mansion"
-                },
-
-                "Sky Drop": {
-                         x: 680,
-                         y: 90,
-                     label: "Sky Drop"
-                }
-            };
-
     // =========================
     // วาด Edge
     // =========================
