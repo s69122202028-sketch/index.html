@@ -587,10 +587,17 @@
                 { to: "Dino Water Splash", walkTime: 5, queueTime: 15 },
                 { to: "Sky Drop", walkTime: 3, queueTime: 20 }
           ],
-
+                
                 "Sky Drop": [
                 { to: "Dragon Coaster", walkTime: 4, queueTime: 20 },
-                { to: "Haunted Mansion", walkTime: 3, queueTime: 20 }
+                { to: "Haunted Mansion", walkTime: 3, queueTime: 20 },
+                { to: "Carousel", walkTime: 5, queueTime: 10 }
+          ],
+
+                "Carousel": [
+                { to: "Sky Drop", walkTime: 5, queueTime: 10 },
+                { to: "Giant Ferris Wheel", walkTime: 3, queueTime: 5 },
+                { to: "Grand Castle", walkTime: 4, queueTime: 5 }
           ]
     };
         const nodeCoordinates = {
@@ -633,6 +640,11 @@
         x: 680,
         y: 90,
         label: "Sky Drop"
+    },
+     "Carousel": {
+        x: 380,
+        y: 350,
+        label: "Carousel"
     }
 };
 // =========================
@@ -1026,6 +1038,7 @@ function dfs(start, target) {
                 'Giant Ferris Wheel': 'ชิงช้าสวรรค์ยักษ์ (Giant Ferris Wheel)',
                 'Dino Water Splash': 'ล่องแก่งไดโนเสาร์ (Dino Water Splash)',
                 'Grand Castle': 'ปราสาทเทพนิยาย (Grand Castle)'
+                'Carousel': 'ม้าหมุนเวทมนตร์ (Carousel)'
             };
             document.getElementById('dest-display').value = nodeNames[destKey] || destKey;
         }
