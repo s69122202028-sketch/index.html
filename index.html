@@ -106,7 +106,7 @@
                 </button>
                 <button onclick="goToScreen(4)" id="step-btn-4" class="step-inactive rounded-xl py-2.5 px-1 transition-all flex flex-col md:flex-row items-center justify-center gap-1.5">
                     <span class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-xs">4</span>
-                    <span>รับบัตร FastPass</span>
+                    <span>รับบัตร </span>
                 </button>
             </div>
         </div>
@@ -119,7 +119,7 @@
                     <h2 class="text-xl font-bold mb-1 text-gray-800 flex items-center gap-2">
                         <i class="fa-solid fa-compass text-purple-600"></i> วันนี้อยากไปเล่นอะไรใน WonderPark?
                     </h2>
-                    <p class="text-xs text-gray-500 mb-6">เลือกจุดเริ่มต้นและจุดหมายปลายทาง </p>
+                    <p class="text-xs text-gray-500 mb-6 hidden">เลือกจุดเริ่มต้นและจุดหมายปลายทาง </p>
 
                     <div class="space-y-4">
                         <!-- Start Location Input -->
@@ -237,12 +237,12 @@
                 <!-- Dijkstra Algorithm Concept Card -->
                 <div class="mt-8 bg-blue-50/80 border border-blue-200 rounded-2xl p-5 text-xs text-blue-900">
                     <h4 class="font-bold text-sm mb-2 text-blue-800 flex items-center gap-2">
-                        <i class="fa-solid fa-calculator"></i> หลักการทางคณิตศาสตร์ดิสครีต: Weighted Graph & Dijkstra Algorithm
+                        <i class="fa-solid fa-calculator hidden"></i> หลักการทางคณิตศาสตร์ดิสครีต: Weighted Graph & Dijkstra Algorithm
                     </h4>
-                    <p class="mb-2 leading-relaxed">
+                    <p class="mb-2 leading-relaxed hidden">
                         ระบบใช้คำนวณ Shortest Path ตามขั้นตอน Dijkstra โดยตั้งค่าระยะทางเริ่มต้น $dist[s] = 0$ และจุดอื่น $dist[v] = \infty$ แล้วเลือก Vertex ที่มี Cost น้อยที่สุดที่ยังไม่ถูกปิด ตรวจสอบ Neighbor และทำการ Relax ค่า weight
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 font-mono bg-white p-3 rounded-xl border border-blue-100">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 font-mono bg-white p-3 rounded-xl border border-blue-100 hidden">
                         <div><strong>1. เดินเร็วที่สุด:</strong> Cost = Time</div>
                         <div><strong>2. เวลารอน้อยสุด:</strong> Cost = Queue</div>
                         <div><strong>3. เส้นทางสมดุล:</strong> Cost = Time + (Queue &times; 0.5)</div>
@@ -262,7 +262,7 @@
             <div class="flex justify-between items-center mb-3">
                 <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
                     <i class="fa-solid fa-map-location-dot text-purple-600"></i>
-                    แผนที่จำลองโครงสร้าง Weighted Graph
+                    แผนที่จำลอง
                 </h3>
 
                 <span id="active-option-badge"
@@ -311,11 +311,11 @@
             <!-- Adjacency List -->
             <div class="mt-5">
 
-                <h3 class="font-bold text-gray-800 text-base mb-3">
+                <h3 class="font-bold text-gray-800 text-base mb-3 hidden">
                     Adjacency List
                 </h3>
 
-                <p class="text-xs text-gray-500 mb-3">
+                <p class="text-xs text-gray-500 mb-3 hidden">
                     รายการ Vertex ที่เชื่อมต่อกัน พร้อมน้ำหนักของ Edge
                 </p>
 
@@ -333,7 +333,7 @@
         Graph Traversal
     </h3>
 
-    <p class="text-xs text-gray-600 mb-3">
+    <p class="text-xs text-gray-600 mb-3 hidden">
         ทดลองค้นหาเส้นทางด้วย Breadth First Search (BFS)
         และ Depth First Search (DFS)
     </p>
@@ -441,7 +441,7 @@
                     </div>
 
                     <div>
-                        <span class="text-xs text-gray-500 block mb-1">ลำดับ Node ใน Path (Vertex Sequence):</span>
+                        <span class="text-xs text-gray-500 block mb-1 hidden">ลำดับ Node ใน Path (Vertex Sequence):</span>
                         <div class="font-mono text-xs bg-white p-2.5 rounded-xl border border-purple-100 text-purple-800 break-words" id="ticket-path-seq">
                             -
                         </div>
@@ -503,7 +503,7 @@
         // --- A. TREE STRUCTURE (Rooted Tree 4 Levels for Hierarchy) ---
         // Root (Level 0) -> Zone (Level 1) -> Category (Level 2) -> Attraction Leaf (Level 3)
         const parkTree = {
-            name: "WonderPark สวนสนุกรวม",
+            name: "WonderPark ",
             type: "Root",
             children: [
                 {
