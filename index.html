@@ -260,11 +260,17 @@
                         <span id="active-option-badge" class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-bold"></span>
                     </div>
 
-                    <!-- SVG Container for Interactive Graph Visualization -->
-                    <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner" style="height: 380px;">
-                        <svg id="park-graph-svg" class="w-full h-full" viewBox="0 0 600 350">
-                            <!-- SVG lines and nodes drawn dynamically in JS -->
-                        </svg>
+                   <!-- Canvas Container for Interactive Graph Visualization -->
+                <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner"
+                     style="height: 380px;">
+
+                <canvas id="park-graph-canvas"
+                        width="800"
+                        height="450"    
+                        class="w-full h-full">
+                </canvas>
+
+                        </div>
                     </div>
 
                     <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-600 justify-center bg-gray-50 p-2.5 rounded-xl">
@@ -472,48 +478,65 @@
             ]
         };
 
-        // --- B. WEIGHTED GRAPH (Adjacency List with 7 Vertices and 11 Edges) ---
-        // Vertices: Entrance, Dragon Coaster, Giant Ferris Wheel, Dino Water Splash, Grand Castle, Haunted Mansion, Food Plaza
-        // Edge Weights: walkTime (นาที), queueTime (นาที)
-        const parkGraph = {
-            "Entrance": [
+          // --- B. WEIGHTED GRAPH ---
+          // Vertex = สถานที่ในสวนสนุก
+          // Edge = เส้นทางระหว่างสถานที่
+          // Weight = เวลาเดิน (นาที) 
+      // ตอนนี้ Graph ของคุณจะมี 8 Vertex  
+     // 1. Entrance 2. Food Plaza 3. Giant Ferris Wheel 4. Grand Castle 5. Dragon Coaster 6. Dino Water Splash 7. Haunted Mansion 8. Sky Drop และมี Edge มากกว่า 7 เส้น ซึ่งตรงกับเงื่อนไขโครงงาน //***
+          const parkGraph = {
+
+                "Entrance": [
                 { to: "Food Plaza", walkTime: 3, queueTime: 0 },
                 { to: "Giant Ferris Wheel", walkTime: 5, queueTime: 10 }
-            ],
-            "Food Plaza": [
+           ],
+
+                "Food Plaza": [
                 { to: "Entrance", walkTime: 3, queueTime: 0 },
-                { to: "Dragon Coaster", walkTime: 4, queueTime: 30 },
-                { to: "Haunted Mansion", walkTime: 6, queueTime: 15 },
-                { to: "Grand Castle", walkTime: 3, queueTime: 5 }
-            ],
-            "Giant Ferris Wheel": [
-                { to: "Entrance", walkTime: 5, queueTime: 0 },
+                { to: "Dragon Coaster", walkTime: 4, queueTime: 30 },    
+                { to: "Grand Castle", walkTime: 3, queueTime: 5 },
+                { to: "Haunted Mansion", walkTime: 6, queueTime: 15 }
+           ],
+
+                "Giant Ferris Wheel": [
+                { to: "Entrance", walkTime: 5, queueTime: 10 },
                 { to: "Grand Castle", walkTime: 2, queueTime: 5 },
                 { to: "Dino Water Splash", walkTime: 7, queueTime: 20 }
-            ],
-            "Dragon Coaster": [
-                { to: "Food Plaza", walkTime: 4, queueTime: 0 },
-                { to: "Haunted Mansion", walkTime: 3, queueTime: 15 },
-                { to: "Grand Castle", walkTime: 5, queueTime: 5 }
-            ],
-            "Grand Castle": [
-                { to: "Food Plaza", walkTime: 3, queueTime: 0 },
-                { to: "Giant Ferris Wheel", walkTime: 2, queueTime: 10 },
-                { to: "Dragon Coaster", walkTime: 5, queueTime: 30 },
-                { to: "Dino Water Splash", walkTime: 4, queueTime: 20 }
-            ],
-            "Dino Water Splash": [
-                { to: "Giant Ferris Wheel", walkTime: 7, queueTime: 10 },
-                { to: "Grand Castle", walkTime: 4, queueTime: 5 },
-                { to: "Haunted Mansion", walkTime: 5, queueTime: 15 }
-            ],
-            "Haunted Mansion": [
-                { to: "Food Plaza", walkTime: 6, queueTime: 0 },
-                { to: "Dragon Coaster", walkTime: 3, queueTime: 30 },
-                { to: "Dino Water Splash", walkTime: 5, queueTime: 20 }
-            ]
-        };
+           ],
 
+                "Dragon Coaster": [
+                { to: "Food Plaza", walkTime: 4, queueTime: 30 },
+                { to: "Grand Castle", walkTime: 5, queueTime: 5 },
+                { to: "Haunted Mansion", walkTime: 3, queueTime: 15 },
+                { to: "Sky Drop", walkTime: 4, queueTime: 20 }
+           ],
+
+                "Grand Castle": [
+                { to: "Food Plaza", walkTime: 3, queueTime: 5 },
+                { to: "Giant Ferris Wheel", walkTime: 2, queueTime: 5 },
+                { to: "Dragon Coaster", walkTime: 5, queueTime: 5 },
+                { to: "Dino Water Splash", walkTime: 4, queueTime: 20 }
+          ],
+
+                "Dino Water Splash": [
+                { to: "Giant Ferris Wheel", walkTime: 7, queueTime: 20 },
+                { to: "Grand Castle", walkTime: 4, queueTime: 20 },
+                { to: "Haunted Mansion", walkTime: 5, queueTime: 15 }
+          ],
+
+                "Haunted Mansion": [
+                { to: "Food Plaza", walkTime: 6, queueTime: 15 },
+                { to: "Dragon Coaster", walkTime: 3, queueTime: 30 },
+                { to: "Dino Water Splash", walkTime: 5, queueTime: 15 },
+                { to: "Sky Drop", walkTime: 3, queueTime: 20 }
+          ],
+
+                "Sky Drop": [
+                { to: "Dragon Coaster", walkTime: 4, queueTime: 20 },
+                { to: "Haunted Mansion", walkTime: 3, queueTime: 20 }
+          ]
+    };
+        
         // Graph Layout Coordinates for SVG Map Rendering
         const nodeCoordinates = {
             "Entrance": { x: 80, y: 300, label: "ประตูทางเข้า" },
@@ -614,6 +637,118 @@
         let calculatedRoutes = {};
         let activeRouteOption = "fastest"; // 'fastest', 'minQueue', 'balanced'
 
+        // =========================
+        // BFS - Breadth First Search
+        // =========================
+
+function bfs(start, target) {
+
+    const queue = [start];
+
+    const visited = new Set();
+
+    const previous = {};
+
+    visited.add(start);
+
+
+    while (queue.length > 0) {
+
+        const current = queue.shift();
+
+        if (current === target) {
+            break;
+        }
+
+
+        const neighbors = parkGraph[current] || [];
+
+
+        neighbors.forEach(edge => {
+
+            if (!visited.has(edge.to)) {
+
+                visited.add(edge.to);
+
+                previous[edge.to] = current;
+
+                queue.push(edge.to);
+
+            }
+
+        });
+
+    }
+
+
+    if (!visited.has(target)) {
+        return [];
+    }
+    
+    const path = [];
+
+    let current = target;
+
+
+    while (current !== undefined) {
+
+        path.unshift(current);
+
+        if (current === start) {
+            break;
+        }
+
+        current = previous[current];
+
+    }
+    
+    return path;
+}
+        // =========================
+        // DFS - Depth First Search
+        // =========================
+
+function dfs(start, target) {
+
+    const visited = new Set();
+
+    const path = [];
+
+
+    function search(current) {
+
+        visited.add(current);
+
+        path.push(current);
+
+
+        if (current === target) {
+            return true;
+        }
+
+        const neighbors = parkGraph[current] || [];
+
+        for (const edge of neighbors) {
+
+            if (!visited.has(edge.to)) {
+
+                if (search(edge.to)) {
+                    return true;
+                }
+
+            }
+
+        }
+
+        path.pop();
+
+        return false;
+    }
+
+    const found = search(start);
+
+    return found ? path : [];
+}
         function goToScreen(screenNumber) {
             // Toggle screen visibility
             for (let i = 1; i <= 4; i++) {
@@ -629,12 +764,12 @@
             }
 
             if (screenNumber === 3) {
-                renderSVGMap();
+                renderCanvasMap();
                 renderItinerary();
+            }
             } else if (screenNumber === 4) {
                 renderFastPassTicket();
             }
-        }
 
         /* ==================== 4. TREE SELECTION MODAL ==================== */
         function openTreePicker(target) {
@@ -792,77 +927,240 @@
             goToScreen(3);
         }
 
-        /* ==================== 6. SCREEN 3: SVG MAP & ITINERARY ==================== */
-        function renderSVGMap() {
-            const svg = document.getElementById('park-graph-svg');
-            const route = calculatedRoutes[activeRouteOption];
-            const activePath = route ? route.path : [];
+        /* ==================== 6. SCREEN 3: CANVAS MAP & ITINERARY ==================== */
+            function renderCanvasMap() {
+                
+            const canvas = document.getElementById("park-graph-canvas");
+                
+            if (!canvas) return;
+                
+                    const ctx = canvas.getContext("2d");
+                
+                    const route = calculatedRoutes[activeRouteOption];
+                    const activePath = route ? route.path : [];
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // ตำแหน่ง Vertex
+                    const nodeCoordinates = {
 
-            document.getElementById('active-option-badge').innerText = 
-                activeRouteOption === 'fastest' ? 'โหมด: เดินเร็วที่สุด' :
-                activeRouteOption === 'minQueue' ? 'โหมด: เวลารอน้อยสุด' : 'โหมด: สมดุล';
+                "Entrance": {
+                         x: 80,
+                         y: 220,
+                     label: "Entrance"
+                },
 
-            let svgContent = '';
+                "Food Plaza": {
+                           x: 220,
+                           y: 120,
+                       label: "Food Plaza"
+                },
 
-            // 1. Draw Edges (Lines)
-            const drawnEdges = new Set();
-            Object.keys(parkGraph).forEach(u => {
-                parkGraph[u].forEach(edge => {
-                    const v = edge.to;
-                    const edgeKey = [u, v].sort().join('--');
-                    
-                    if (!drawnEdges.has(edgeKey)) {
-                        drawnEdges.add(edgeKey);
-                        const posU = nodeCoordinates[u];
-                        const posV = nodeCoordinates[v];
+                "Giant Ferris Wheel": {
+                                   x: 220,
+                                   y: 330,
+                               label: "Ferris Wheel"
+                },
 
-                        // Check if edge is in active Dijkstra path
-                        let isHighlighted = false;
-                        for (let i = 0; i < activePath.length - 1; i++) {
-                            if ((activePath[i] === u && activePath[i+1] === v) || (activePath[i] === v && activePath[i+1] === u)) {
-                                isHighlighted = true;
-                                break;
-                            }
-                        }
+                "Grand Castle": {
+                             x: 380,
+                             y: 220,
+                         label: "Grand Castle"
+                },
 
-                        const lineColor = isHighlighted ? '#FD79A8' : '#334155';
-                        const strokeWidth = isHighlighted ? '5' : '2';
-                        const dashArray = isHighlighted ? '0' : '4';
+                "Dragon Coaster": {
+                               x: 520,
+                               y: 120,
+                           label: "Dragon Coaster"
+                },
 
-                        svgContent += `
-                            <line x1="${posU.x}" y1="${posU.y}" x2="${posV.x}" y2="${posV.y}" 
-                                stroke="${lineColor}" stroke-width="${strokeWidth}" stroke-dasharray="${dashArray}" />
-                            <text x="${(posU.x + posV.x)/2}" y="${(posU.y + posV.y)/2 - 5}" 
-                                fill="${isHighlighted ? '#FD79A8' : '#94a3b8'}" font-size="10" font-weight="bold" text-anchor="middle">
-                                ${edge.walkTime}m
-                            </text>
-                        `;
-                    }
-                });
-            });
+                "Dino Water Splash": {
+                                  x: 520,
+                                  y: 330,
+                              label: "Dino Splash"
+                },
 
-            // 2. Draw Vertices (Nodes)
-            Object.keys(nodeCoordinates).forEach(nodeKey => {
-                const pos = nodeCoordinates[nodeKey];
-                const isStart = nodeKey === selectedStartKey;
-                const isDest = nodeKey === selectedDestKey;
-                const isInPath = activePath.includes(nodeKey);
+                "Haunted Mansion": {
+                                x: 680,
+                                y: 220,
+                            label: "Haunted Mansion"
+                },
 
-                let nodeColor = '#3b82f6'; // Default blue
-                if (isStart) nodeColor = '#22c55e'; // Green
-                else if (isDest) nodeColor = '#ef4444'; // Red
-                else if (isInPath) nodeColor = '#eab308'; // Yellow path node
+                "Sky Drop": {
+                         x: 680,
+                         y: 90,
+                     label: "Sky Drop"
+                }
+            };
 
-                svgContent += `
-                    <g transform="translate(${pos.x}, ${pos.y})">
-                        <circle r="${isStart || isDest ? '16' : '12'}" fill="${nodeColor}" stroke="#ffffff" stroke-width="2" class="shadow-lg" />
-                        <text y="25" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">${pos.label}</text>
-                    </g>
-                `;
-            });
+    // =========================
+    // วาด Edge
+    // =========================
 
-            svg.innerHTML = svgContent;
+    const drawnEdges = new Set();
+
+    Object.keys(parkGraph).forEach(source => {
+
+        parkGraph[source].forEach(edge => {
+
+            const target = edge.to;
+
+            const edgeKey = [source, target]
+                .sort()
+                .join("--");
+
+            if (drawnEdges.has(edgeKey)) return;
+
+            drawnEdges.add(edgeKey);
+
+            const start = nodeCoordinates[source];
+            const end = nodeCoordinates[target];
+
+            if (!start || !end) return;
+
+            // ตรวจสอบว่า Edge อยู่ใน Path หรือไม่
+            let isPath = false;
+
+            for (let i = 0; i < activePath.length - 1; i++) {
+
+                if (
+                    (activePath[i] === source &&
+                     activePath[i + 1] === target) ||
+
+                    (activePath[i] === target &&
+                     activePath[i + 1] === source)
+                ) {
+                    isPath = true;
+                    break;
+                }
+            }
+
+
+            // เส้น Edge
+            ctx.beginPath();
+
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+
+            ctx.lineWidth = isPath ? 6 : 2;
+
+            ctx.strokeStyle =
+                isPath
+                    ? "#ff5c9a"
+                    : "#64748b";
+
+            ctx.stroke();
+
+
+            // Weight
+            const middleX = (start.x + end.x) / 2;
+            const middleY = (start.y + end.y) / 2;
+
+            ctx.fillStyle = "#ffffff";
+
+            ctx.font = "bold 13px Arial";
+
+            ctx.textAlign = "center";
+
+            ctx.fillText(
+                `${edge.walkTime} min`,
+                middleX,
+                middleY - 7
+            );
+
+        });
+
+    });
+
+
+    // =========================
+    // วาด Vertex
+    // =========================
+
+    Object.keys(nodeCoordinates).forEach(nodeKey => {
+
+        const node = nodeCoordinates[nodeKey];
+
+        const isStart =
+            nodeKey === selectedStartKey;
+
+        const isDestination =
+            nodeKey === selectedDestKey;
+
+        const isInPath =
+            activePath.includes(nodeKey);
+
+
+        let radius = 18;
+
+        let nodeColor = "#7c83fd";
+
+        if (isStart) {
+
+            nodeColor = "#35c759";
+
+        } else if (isDestination) {
+
+            nodeColor = "#ff4d6d";
+
+        } else if (isInPath) {
+
+            nodeColor = "#ffd43b";
+
         }
+
+
+        // วงกลม Vertex
+        ctx.beginPath();
+
+        ctx.arc(
+            node.x,
+            node.y,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = nodeColor;
+
+        ctx.fill();
+
+
+        ctx.lineWidth = 3;
+
+        ctx.strokeStyle = "#ffffff";
+
+        ctx.stroke();
+
+
+        // ชื่อ Vertex
+        ctx.fillStyle = "#ffffff";
+
+        ctx.font = "bold 12px Arial";
+
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            node.label,
+            node.x,
+            node.y + 38
+        );
+
+    });
+
+
+    // Badge
+    document.getElementById(
+        "active-option-badge"
+    ).innerText =
+
+        activeRouteOption === "fastest"
+            ? "โหมด: เดินเร็วที่สุด"
+
+        : activeRouteOption === "minQueue"
+            ? "โหมด: เวลารอน้อยสุด"
+
+        : "โหมด: เส้นทางสมดุล";
+}
 
         function renderItinerary() {
             const route = calculatedRoutes[activeRouteOption];
