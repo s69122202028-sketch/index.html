@@ -17,12 +17,12 @@
                     },
                     colors: {
                         park: {
-                            purple: '#6C5CE7',
-                            pink: '#FD79A8',
-                            blue: '#0984E3',
-                            yellow: '#FDCB6E',
-                            green: '#00B894',
-                            dark: '#2D3436'
+                            purple: '#CDB4DB',
+                            pink: '#FFC8DD',
+                            blue: '#BDE0FE',
+                            yellow: '#FFE5A5',
+                            green: '#CDECCF',
+                            dark: '#5F5B66'
                         }
                     }
                 }
@@ -30,33 +30,45 @@
         }
     </script>
     <style>
-        body {
+         body {
             font-family: 'Kanit', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(
+                135deg,
+                #FFF9F2 0%,
+                #F3E8FF 45%,
+                #EAF6FF 100%
+         );
             min-height: 100vh;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+       .glass-card {
+            background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            box-shadow: 0 8px 32px rgba(150, 130, 180, 0.12);
         }
         .btn-gradient {
-            background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+            background: linear-gradient(
+                135deg,
+                #CDB4DB 0%,
+                #FFC8DD 100%
+            );
+            color: #5F5B66;
             transition: all 0.3s ease;
         }
+
         .btn-gradient:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+            box-shadow: 0 5px 15px rgba(205, 180, 219, 0.45);
         }
         .step-active {
-            background-color: #6C5CE7;
-            color: white;
-            box-shadow: 0 0 15px rgba(108, 92, 231, 0.5);
+            background-color: #CDB4DB;
+            color: #5F5B66;
+            box-shadow: 0 0 15px rgba(205, 180, 219, 0.45);
         }
+
         .step-inactive {
-            background-color: #e2e8f0;
-            color: #64748b;
+            background-color: #F1EAF6;
+            color: #8A8291;
         }
         /* Canvas QR Styling */
         #qrCanvas {
@@ -116,15 +128,19 @@
             object-fit: contain;
         }
         /* ชื่อเว็บไซต์ */
-        .wonder-header-title {
+         .wonder-header-title {
             font-size: 28px;
             font-weight: 700;
             line-height: 1;
             background: linear-gradient(
-            90deg,
-            #6C5CE7,
-            #FD79A8
-        );
+                90deg,
+                #9B7EBD,
+                #F29BB2
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -135,7 +151,7 @@
 
     <div class="max-w-6xl mx-auto">
         <!-- Header / Navbar -->
-        <header class="glass-card wonder-header mb-6 border-b-4 border-purple-500">
+        <header class="glass-card wonder-header mb-6 border-b-4 border-purple-300">
         <!-- รูปแผนที่เต็ม Header -->
             <img
                 src="images/map.PNG"
@@ -184,7 +200,7 @@
                 <!-- Search & Selection Panel -->
                 <div class="md:col-span-3 glass-card rounded-2xl p-6 shadow-md">
                     <h2 class="text-xl font-bold mb-1 text-gray-800 flex items-center gap-2">
-                        <i class="fa-solid fa-compass text-purple-600"></i> วันนี้อยากไปเล่นอะไรใน WonderPark?
+                        <i class="fa-solid fa-compass text-purple-400"></i> วันนี้อยากไปเล่นอะไรใน WonderPark?
                     </h2>
                     <p class="text-xs text-gray-500 mb-6 hidden">เลือกจุดเริ่มต้นและจุดหมายปลายทาง </p>
 
@@ -192,12 +208,12 @@
                         <!-- Start Location Input -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                <i class="fa-solid fa-location-dot text-green-500 mr-1"></i> จุดเริ่มต้น 
+                                <i class="fa-solid fa-location-dot text-green-400 mr-1"></i> จุดเริ่มต้น 
                             </label>
                             <div class="flex gap-2">
                                 <input type="text" id="start-display" readonly value="ประตูทางเข้าหลัก (Entrance)" 
                                     class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
-                                <button onclick="openTreePicker('start')" class="bg-purple-100 text-purple-700 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-200 transition">
+                                <button onclick="openTreePicker('start')" class="bg-purple-100 text-purple-500 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-200 transition">
                                     <i class="fa-solid fa-sitemap mr-1"></i> 
                                 </button>
                             </div>
@@ -205,7 +221,7 @@
 
                         <!-- Swap Button -->
                         <div class="flex justify-center -my-2">
-                            <button onclick="swapLocations()" class="w-9 h-9 bg-white border-2 border-purple-400 rounded-full text-purple-600 hover:bg-purple-50 shadow-md transition flex items-center justify-center">
+                            <button onclick="swapLocations()" class="w-9 h-9 bg-white border-2 border-purple-400 rounded-full text-purple-400 hover:bg-purple-50 shadow-md transition flex items-center justify-center">
                                 <i class="fa-solid fa-arrows-up-down"></i>
                             </button>
                         </div>
@@ -218,7 +234,7 @@
                             <div class="flex gap-2">
                                 <input type="text" id="dest-display" readonly value="รถไฟเหาะมังกร (Dragon Coaster)" 
                                     class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
-                                <button onclick="openTreePicker('dest')" class="bg-purple-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-700 transition shadow">
+                                <button onclick="openTreePicker('dest')" class="bg-purple-400 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-500 transition shadow">
                                     <i class="fa-solid fa-sitemap mr-1"></i> 
                                 </button>
                             </div>
@@ -237,7 +253,7 @@
                                 <button onclick="quickSelect('Dino Water Splash')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
                                      ล่องแก่งไดโนเสาร์
                                 </button>
-                                <button onclick="quickSelect('Grand Castle')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                <button onclick="quickSelect('Grand Castle')" class="bg-purple-50 hover:bg-purple-100 text-purple-500 border border-purple-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
                                      ปราสาทเทพนิยาย
                                 </button>
                                 <button onclick="quickSelect('Carousel')" class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
@@ -252,7 +268,7 @@
                                 <button onclick="quickSelect('Entrance')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
                                      ประตูทางเข้า/ออก
                                  </button>
-                                <button onclick="quickSelect('Food Plaza')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                <button onclick="quickSelect('Food Plaza')" class="bg-purple-50 hover:bg-purple-100 text-purple-500 border border-purple-200 text-xs px-3 py-1.5 rounded-lg font-medium transition">
                                      ศูนย์อาหารพลาซ่า
                                  </button>
                                </div>
@@ -297,13 +313,13 @@
                 <div class="flex flex-wrap justify-between items-center mb-6 gap-2 border-b pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fa-solid fa-code-compare text-purple-600"></i> ผลการเปรียบเทียบเส้นทาง 
+                            <i class="fa-solid fa-code-compare text-purple-400"></i> ผลการเปรียบเทียบเส้นทาง 
                         </h2>
                         <p class="text-xs text-gray-500">
-                            จาก <span id="route-start-label" class="font-bold text-purple-700"></span> ถึง <span id="route-dest-label" class="font-bold text-pink-600"></span>
+                            จาก <span id="route-start-label" class="font-bold text-purple-500"></span> ถึง <span id="route-dest-label" class="font-bold text-pink-400"></span>
                         </p>
                     </div>
-                    <button onclick="goToScreen(1)" class="text-xs text-purple-600 hover:text-purple-800 font-semibold bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200">
+                    <button onclick="goToScreen(1)" class="text-xs text-purple-600 hover:text-purple-600 font-semibold bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200">
                         <i class="fa-solid fa-pen-to-square mr-1"></i> เปลี่ยนจุดหมาย
                     </button>
                 </div>
@@ -340,17 +356,17 @@
 
             <div class="flex justify-between items-center mb-3">
                 <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-purple-600"></i>
+                    <i class="fa-solid fa-map-location-dot text-purple-400"></i>
                     แผนที่จำลอง
                 </h3>
 
                 <span id="active-option-badge"
-                      class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 font-bold">
+                      class="text-xs px-2.5 py-1 rounded-full bg-purple-100 text-purple-500 font-bold">
                 </span>
             </div>
 
             <!-- Canvas Graph -->
-            <div class="w-full bg-slate-900 rounded-xl p-2 relative overflow-hidden border border-slate-700 shadow-inner"
+            <div class="w-full bg-purple-50 rounded-xl p-2 relative overflow-hidden border border-purple-200 shadow-inner"
                  style="height: 380px;">
 
                 <canvas
@@ -417,7 +433,7 @@
     <div class="flex gap-2 hidden">
         <button
             onclick="runBFSExample()"
-            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-xs font-bold">
+            class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-2 rounded-lg text-xs font-bold">
             Run BFS
         </button>
 
@@ -475,10 +491,10 @@
         <div id="screen-4" class="hidden space-y-6">
             <div class="max-w-2xl mx-auto glass-card rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-purple-300 relative overflow-hidden">
                 <!-- Decorative Top Banner -->
-                <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-400"></div>
+                <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-purple-300 via-pink-300 to-yellow-300"></div>
 
                 <div class="text-center mb-6 pt-2">
-                    <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    <span class="bg-purple-100 text-purple-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                         WonderPark Official FastPass
                     </span>
                     <h2 class="text-2xl font-extrabold text-gray-800 mt-2">บัตรผ่านเครื่องเล่น & สรุปแผนการเที่ยว</h2>
@@ -490,35 +506,35 @@
                     <div class="flex justify-between items-center border-b border-purple-200 pb-3">
                         <div>
                             <span class="text-xs text-gray-500">ต้นทาง &rarr; ปลายทาง</span>
-                            <div class="font-bold text-purple-900 text-base" id="ticket-route-name">-</div>
+                            <div class="font-bold text-purple-700 text-base" id="ticket-route-name">-</div>
                         </div>
                         <div class="text-right">
                             <span class="text-xs text-gray-500">ประเภทเส้นทาง</span>
-                            <div class="font-bold text-pink-600 text-sm" id="ticket-mode-name">-</div>
+                            <div class="font-bold text-pink-400 text-sm" id="ticket-mode-name">-</div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2 text-center">
                         <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
                             <span class="text-[10px] text-gray-500 block">เวลาเดินรวม</span>
-                            <span class="text-lg font-bold text-purple-700" id="ticket-walk-time">0</span>
+                            <span class="text-lg font-bold text-purple-500" id="ticket-walk-time">0</span>
                             <span class="text-[10px] text-gray-500"> นาที</span>
                         </div>
                         <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
                             <span class="text-[10px] text-gray-500 block">เวลารอคิวรวม</span>
-                            <span class="text-lg font-bold text-pink-600" id="ticket-queue-time">0</span>
+                            <span class="text-lg font-bold text-pink-400" id="ticket-queue-time">0</span>
                             <span class="text-[10px] text-gray-500"> นาที</span>
                         </div>
                         <div class="bg-white p-2.5 rounded-xl shadow-sm border border-purple-100">
                             <span class="text-[10px] text-gray-500 block">เวลารวมทั้งหมด</span>
-                            <span class="text-lg font-bold text-green-600" id="ticket-total-time">0</span>
+                            <span class="text-lg font-bold text-green-500" id="ticket-total-time">0</span>
                             <span class="text-[10px] text-gray-500"> นาที</span>
                         </div>
                     </div>
 
                     <div>
                         <span class="text-xs text-gray-500 block mb-1 hidden">ลำดับ Node ใน Path (Vertex Sequence):</span>
-                        <div class="font-mono text-xs bg-white p-2.5 rounded-xl border border-purple-100 text-purple-800 break-words" id="ticket-path-seq">
+                        <div class="font-mono text-xs bg-white p-2.5 rounded-xl border border-purple-100 text-purple-600 break-words" id="ticket-path-seq">
                             -
                         </div>
                     </div>
@@ -550,7 +566,7 @@
         <div class="glass-card rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-sitemap text-purple-600"></i> เลือกจุดหมาย
+                    <i class="fa-solid fa-sitemap text-purple-400"></i> เลือกจุดหมาย
                 </h3>
                 <button onclick="closeTreePicker()" class="text-gray-400 hover:text-gray-600 text-lg">
                     <i class="fa-solid fa-xmark"></i>
@@ -778,7 +794,7 @@ function renderAdjacencyList() {
         html += `
             <div class="bg-white rounded-xl p-3 border mb-2">
 
-                <div class="font-bold text-purple-700 mb-1">
+                <div class="font-bold text-purple-500 mb-1">
                     Vertex: ${vertex}
                 </div>
 
@@ -1078,9 +1094,9 @@ function dfs(start, target) {
         } 
                 return `
                     <div onclick="selectLeafNode('${node.nodeKey}', '${node.name}')" 
-                        class="p-2.5 bg-purple-50 hover:bg-purple-600 hover:text-white rounded-xl cursor-pointer text-xs font-medium transition flex items-center justify-between border border-purple-100">
+                        class="p-2.5 bg-purple-50 hover:bg-purple-400 hover:text-white rounded-xl cursor-pointer text-xs font-medium transition flex items-center justify-between border border-purple-100">
                         <span><i class="fa-solid fa-location-pin text-pink-500 mr-2"></i> ${node.name}</span>
-                        <span class="text-[10px] bg-white text-purple-700 px-2 py-0.5 rounded-full font-bold">Leaf</span>
+                        <span class="text-[10px] bg-white text-purple-500 px-2 py-0.5 rounded-full font-bold">Leaf</span>
                     </div>
                 `;
             }
@@ -1089,7 +1105,7 @@ function dfs(start, target) {
             
             return `
                 <details open class="mb-2 bg-white/80 rounded-xl p-2 border border-gray-200">
-                    <summary class="font-bold text-gray-700 text-xs cursor-pointer hover:text-purple-600 flex items-center gap-1">
+                    <summary class="font-bold text-gray-700 text-xs cursor-pointer hover:text-purple-400 flex items-center gap-1">
                         <i class="fa-solid fa-folder-tree text-purple-500"></i> ${node.name}
                     </summary>
                     <div class="pl-3 pt-2 space-y-1 border-l-2 border-purple-200 ml-1.5 mt-1">
@@ -1156,9 +1172,9 @@ function dfs(start, target) {
 
             const container = document.getElementById('route-cards-container');
             container.innerHTML = `
-                ${renderRouteCard('fastest', ' เส้นทางเดินเร็วที่สุด', 'เน้นระยะเวลาเดินสั้นที่สุด', calculatedRoutes.fastest, 'border-purple-500', 'bg-purple-500')}
+                ${renderRouteCard('fastest', ' เส้นทางเดินเร็วที่สุด', 'เน้นระยะเวลาเดินสั้นที่สุด', calculatedRoutes.fastest, 'border-purple-400', 'bg-purple-400')}
                 ${renderRouteCard('minQueue', ' เส้นทางเวลารอน้อยสุด', 'เลือกทางเดินที่คิวยาวน้อยกว่า', calculatedRoutes.minQueue, 'border-pink-500', 'bg-pink-500')}
-                ${renderRouteCard('balanced', ' เส้นทางสมดุลที่สุด', 'สมดุลระหว่างเวลาเดินและเวลารอคิว', calculatedRoutes.balanced, 'border-blue-500', 'bg-blue-500')}
+                ${renderRouteCard('balanced', ' เส้นทางสมดุลที่สุด', 'สมดุลระหว่างเวลาเดินและเวลารอคิว', calculatedRoutes.balanced, 'border-blue-400', 'bg-blue-400')}
             `;
 
             goToScreen(2);
@@ -1176,7 +1192,7 @@ function dfs(start, target) {
 
                         <div class="space-y-2 bg-gray-50 p-3 rounded-xl mb-4 border border-gray-100 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-gray-500"><i class="fa-solid fa-person-walking text-purple-600"></i> เวลาเดิน:</span>
+                                <span class="text-gray-500"><i class="fa-solid fa-person-walking text-purple-400"></i> เวลาเดิน:</span>
                                 <span class="font-bold text-gray-800">${routeData.totalWalkTime} นาที</span>
                             </div>
                             <div class="flex justify-between">
@@ -1185,14 +1201,14 @@ function dfs(start, target) {
                             </div>
                             <div class="flex justify-between pt-1 border-t border-gray-200">
                                 <span class="font-bold text-gray-700">เวลารวมประมาณ:</span>
-                                <span class="font-bold text-purple-700 text-sm">${routeData.totalTime} นาที</span>
+                                <span class="font-bold text-purple-500 text-sm">${routeData.totalTime} นาที</span>
                             </div>
                         </div>
 
                         <div class="text-xs text-gray-600">
                             <span class="font-semibold block mb-1">ลำดับโหนด (Path Nodes):</span>
                             <div class="flex flex-wrap gap-1 font-mono text-[11px]">
-                                ${routeData.path.map(p => `<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">${p}</span>`).join(' &rarr; ')}
+                                ${routeData.path.map(p => `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded">${p}</span>`).join(' &rarr; ')}
                             </div>
                         </div>
                     </div>
@@ -1414,7 +1430,7 @@ function dfs(start, target) {
                 html += `
                     <div class="flex gap-3 relative">
                         <div class="flex flex-col items-center">
-                            <div class="w-7 h-7 rounded-full ${isStart ? 'bg-green-500' : isLast ? 'bg-red-500' : 'bg-purple-600'} text-white text-xs flex items-center justify-center font-bold shadow">
+                            <div class="w-7 h-7 rounded-full ${isStart ? 'bg-green-400' : isLast ? 'bg-red-400' : 'bg-purple-400'} text-white text-xs flex items-center justify-center font-bold shadow">
                                 ${i + 1}
                             </div>
                             ${!isLast ? '<div class="w-0.5 h-full bg-purple-200 my-1"></div>' : ''}
@@ -1426,7 +1442,7 @@ function dfs(start, target) {
                                     <i class="fa-solid fa-person-walking text-purple-500"></i> เดิน ${edgeInfo.walkTime} นาที
                                     ${edgeInfo.queueTime > 0 ? `| <i class="fa-solid fa-clock text-pink-500"></i> คิว ${edgeInfo.queueTime} นาที` : ''}
                                 </p>
-                            ` : '<p class="text-[11px] text-green-600 font-semibold mt-0.5">ถึงจุดหมายปลายทางแล้ว!</p>'}
+                            ` : '<p class="text-[11px] text-green-500 font-semibold mt-0.5">ถึงจุดหมายปลายทางแล้ว!</p>'}
                         </div>
                     </div>
                 `;
