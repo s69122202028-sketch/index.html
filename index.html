@@ -134,6 +134,48 @@
             line-height: 1;
             color: #6B4E71;
         }
+
+        .wonder-header-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: #6B4E71;
+}
+
+/* ================================
+   SIMPLE LOCATION PICKER
+   ================================ */
+        #tree-modal {
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        #tree-modal > div {
+            animation: modalSlideUp 0.25s ease-out;
+        }
+        #tree-container button {
+            min-height: 64px;
+        }
+        #tree-container button:active {
+            transform: scale(0.98);
+        }
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            @keyframes modalSlideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
     </style>
 </head>
     <body class="p-3 md:p-6 text-gray-800">
@@ -201,8 +243,10 @@
                             <div class="flex gap-2">
                                 <input type="text" id="start-display" readonly value="ประตูทางเข้าหลัก (Entrance)" 
                                     class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
-                                <button onclick="openTreePicker('start')" class="bg-purple-100 text-purple-500 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-200 transition">
-                                    <i class="fa-solid fa-sitemap mr-1"></i> 
+                            <button onclick="openTreePicker('start')" 
+                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-purple-600 bg-purple-50 border border-purple-200 hover:bg-purple-100 transition">
+                                 <i class="fa-solid fa-location-dot mr-1"></i>
+                                        เลือก
                                 </button>
                             </div>
                         </div>
@@ -222,8 +266,10 @@
                             <div class="flex gap-2">
                                 <input type="text" id="dest-display" readonly value="รถไฟเหาะมังกร (Dragon Coaster)" 
                                     class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 cursor-not-allowed">
-                                <button onclick="openTreePicker('dest')" class="bg-purple-400 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-purple-500 transition shadow">
-                                    <i class="fa-solid fa-sitemap mr-1"></i> 
+                                <button onclick="openTreePicker('dest')" 
+                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-pink-600 bg-pink-50 border border-pink-200 hover:bg-pink-100 transition">
+                                      <i class="fa-solid fa-location-dot mr-1"></i>
+                                         เลือก
                                 </button>
                             </div>
                         </div> 
@@ -631,25 +677,27 @@
 
     <!-- TREE PICKER MODAL -->
     <div id="tree-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="glass-card rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] flex flex-col">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 max-h-[85vh] flex flex-col shadow-2xl border border-purple-100">
             <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-bold text-lg text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-sitemap text-purple-400"></i> เลือกจุดหมาย
-                </h3>
+               <h3 id="tree-modal-title" class="font-bold text-lg text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-purple-400"></i>
+                        เลือกสถานที่
+                    </h3>
                 <button onclick="closeTreePicker()" class="text-gray-400 hover:text-gray-600 text-lg">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-
-            <p class="hidden text-xs text-gray-500">คลิกขยายโหนด Parent เพื่อลงไปยัง Leaf (สถานที่จริง)</p>
-
             <!-- Interactive Tree Navigation Area -->
             <div id="tree-container" class="flex-1 overflow-y-auto space-y-2 text-sm pr-1">
                 <!-- Injected via JS -->
             </div>
 
-            <div class="pt-3 border-t text-right">
-                <button onclick="closeTreePicker()" class="bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl text-xs hover:bg-gray-300 transition">
+            <div class="pt-3 border-t border-gray-100 text-right">
+                <button 
+                    onclick="closeTreePicker()" 
+                    class="px-5 py-2.5 rounded-xl text-sm font-semibold
+                        text-gray-600 bg-gray-100
+                        hover:bg-gray-200 transition">
                     ยกเลิก
                 </button>
             </div>
@@ -731,7 +779,6 @@
                 }
             ]
         };
-
           // --- B. WEIGHTED GRAPH ---
           // Vertex = สถานที่ในสวนสนุก
           // Edge = เส้นทางระหว่างสถานที่
@@ -1006,113 +1053,63 @@ function runDFSExample() {
         // =========================
         // BFS - Breadth First Search
         // =========================
-
 function bfs(start, target) {
-
     const queue = [start];
-
     const visited = new Set();
-
     const previous = {};
-
     visited.add(start);
-
-
     while (queue.length > 0) {
-
         const current = queue.shift();
-
         if (current === target) {
             break;
         }
-
-
         const neighbors = parkGraph[current] || [];
-
-
         neighbors.forEach(edge => {
-
             if (!visited.has(edge.to)) {
-
                 visited.add(edge.to);
-
                 previous[edge.to] = current;
-
                 queue.push(edge.to);
-
             }
-
         });
-
     }
-
-
     if (!visited.has(target)) {
         return [];
     }
-    
     const path = [];
-
     let current = target;
-
-
     while (current !== undefined) {
-
         path.unshift(current);
-
         if (current === start) {
             break;
         }
-
         current = previous[current];
-
     }
-    
     return path;
 }
         // =========================
         // DFS - Depth First Search
         // =========================
-
 function dfs(start, target) {
-
     const visited = new Set();
-
     const path = [];
-
-
     function search(current) {
-
         visited.add(current);
-
         path.push(current);
-
-
         if (current === target) {
             return true;
         }
-
         const neighbors = parkGraph[current] || [];
-
         for (const edge of neighbors) {
-
             if (!visited.has(edge.to)) {
-
                 if (search(edge.to)) {
                     return true;
                 }
-
             }
-
         }
-
         path.pop();
-
         return false;
     }
-
     const found = search(start);
-
     return found ? path : [];
 }
         function goToScreen(screenNumber) {
@@ -1138,48 +1135,120 @@ function dfs(start, target) {
         }
         /* ==================== 4. TREE SELECTION MODAL ==================== */
         function openTreePicker(target) {
-            currentTargetInput = target;
-            const modal = document.getElementById('tree-modal');
-            const container = document.getElementById('tree-container');
-            container.innerHTML = buildTreeHTML(parkTree);
-            modal.classList.remove('hidden');
-        }
-
+    currentTargetInput = target;
+    const modal = document.getElementById('tree-modal');
+    const container = document.getElementById('tree-container');
+    const title = document.getElementById('tree-modal-title');
+    // เปลี่ยนหัวข้อตามสิ่งที่ผู้ใช้กำลังเลือก
+    if (target === 'start') {
+        title.innerHTML = `
+            <i class="fa-solid fa-location-dot text-green-500"></i>
+            เลือกจุดเริ่มต้น
+        `;
+    } else {
+        title.innerHTML = `
+            <i class="fa-solid fa-flag-checkered text-pink-500"></i>
+            เลือกจุดหมายปลายทาง
+        `;
+    }
+    container.innerHTML = buildTreeHTML(parkTree);
+    modal.classList.remove('hidden');
+}
         function closeTreePicker() {
             document.getElementById('tree-modal').classList.add('hidden');
         }
-
-        function buildTreeHTML(node) {
-            if (node.type === "Leaf") { 
-            const isConnected = !!parkGraph[node.nodeKey];
-        if (!isConnected) { 
+       function buildTreeHTML(node) {
+    // เก็บเฉพาะสถานที่ปลายทาง (Leaf)
+    const leaves = [];
+    function collectLeaves(currentNode) {
+        if (currentNode.type === "Leaf") {
+            leaves.push(currentNode);
+            return;
+        }
+        if (currentNode.children) {
+            currentNode.children.forEach(child => {
+                collectLeaves(child);
+            });
+        }
+    }
+    collectLeaves(node);
+    // ไอคอนของแต่ละสถานที่
+    const icons = {
+        "Entrance": "fa-door-open",
+        "Food Plaza": "fa-utensils",
+        "Giant Ferris Wheel": "fa-circle",
+        "Grand Castle": "fa-chess-rook",
+        "Dragon Coaster": "fa-train",
+        "Dino Water Splash": "fa-water",
+        "Haunted Mansion": "fa-ghost",
+        "Sky Drop": "fa-arrow-down",
+        "Carousel": "fa-horse"
+    };
+    return `
+        <div class="space-y-2">
+            ${leaves.map(leaf => {
+                const isConnected = !!parkGraph[leaf.nodeKey];
+                if (!isConnected) {
+                    return `
+                        <div class="flex items-center justify-between p-3.5
+                                    bg-gray-50 rounded-2xl
+                                    border border-gray-200
+                                    opacity-50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gray-200
+                                            flex items-center justify-center">
+                                    <i class="fa-solid ${icons[leaf.nodeKey] || 'fa-location-dot'}
+                                       text-gray-400"></i>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-500">
+                                        ${leaf.name}
+                                    </div>
+                                    <div class="text-[10px] text-gray-400">
+                                        ยังไม่พร้อมใช้งาน
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
                 return `
-                <div class="p-2.5 bg-gray-100 rounded-xl text-xs font-medium flex items-center justify-between border border-gray-200 opacity-60 cursor-not-allowed">
-                    <span><i class="fa-solid fa-location-pin text-gray-400 mr-2"></i> ${node.name}</span>
-                    <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">เร็ว ๆ นี้</span>
+                    <button
+                        onclick="selectLeafNode('${leaf.nodeKey}', '${leaf.name}')"
+                        class="w-full flex items-center justify-between
+                               p-3.5 bg-white rounded-2xl
+                               border border-gray-200
+                               hover:border-purple-300
+                               hover:bg-purple-50
+                               transition-all duration-200
+                               text-left group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl
+                                        bg-purple-50
+                                        flex items-center justify-center
+                                        group-hover:bg-purple-100
+                                        transition">
+                                <i class="fa-solid ${icons[leaf.nodeKey] || 'fa-location-dot'}
+                                   text-purple-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">
+                                    ${leaf.name}
+                                </div>
+                                <div class="text-[10px] text-gray-400 mt-0.5">
+                                    แตะเพื่อเลือกสถานที่
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right
+                                  text-gray-300
+                                  group-hover:text-purple-400
+                                  transition">
+                                </i>
+                            </button>
+                       `;
+                    }).join('')}
                 </div>
-            `;
-        } 
-                return `
-                    <div onclick="selectLeafNode('${node.nodeKey}', '${node.name}')" 
-                        class="p-2.5 bg-purple-50 hover:bg-purple-400 hover:text-white rounded-xl cursor-pointer text-xs font-medium transition flex items-center justify-between border border-purple-100">
-                        <span><i class="fa-solid fa-location-pin text-pink-500 mr-2"></i> ${node.name}</span>
-                        <span class="text-[10px] bg-white text-purple-500 px-2 py-0.5 rounded-full font-bold">Leaf</span>
-                    </div>
-                `;
-            }
-
-            let childrenHTML = node.children.map(child => buildTreeHTML(child)).join('');
-            
-            return `
-                <details open class="mb-2 bg-white/80 rounded-xl p-2 border border-gray-200">
-                    <summary class="font-bold text-gray-700 text-xs cursor-pointer hover:text-purple-400 flex items-center gap-1">
-                        <i class="fa-solid fa-folder-tree text-purple-500"></i> ${node.name}
-                    </summary>
-                    <div class="pl-3 pt-2 space-y-1 border-l-2 border-purple-200 ml-1.5 mt-1">
-                        ${childrenHTML}
-                    </div>
-                </details>
             `;
         }
 
