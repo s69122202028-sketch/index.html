@@ -175,7 +175,6 @@
                     transform: translateY(0);
                 }
             }
-        </style>
     </style>
 </head>
     <body class="p-3 md:p-6 text-gray-800">
@@ -1017,7 +1016,6 @@ function runDFSExample() {
                             weight = edge.walkTime; // Focus on shortest walk
                        } else if (costType === 'minQueue') {
                             weight = edge.queueTime;
-                        }
                         } else {
                             weight = edge.walkTime + (edge.queueTime * 0.5); // Balanced
                         }
@@ -1468,16 +1466,38 @@ function findAllPaths(start, target) {
 
         function quickSelect(destKey) {
             selectedDestKey = destKey;
-            const nodeNames = {
-                'Dragon Coaster': 'รถไฟเหาะมังกร (Dragon Coaster)',
-                'Giant Ferris Wheel': 'ชิงช้าสวรรค์ยักษ์ (Giant Ferris Wheel)',
-                'Dino Water Splash': 'ล่องแก่งไดโนเสาร์ (Dino Water Splash)',
-                'Grand Castle': 'ปราสาทเทพนิยาย (Grand Castle)',
-                'Carousel': 'ม้าหมุนเวทมนตร์ (Carousel)'
-            };
+           
             document.getElementById('dest-display').value = nodeNames[destKey] || destKey;
         }
+        const nodeNames = {
 
+    'Dragon Coaster':
+        'รถไฟเหาะมังกร (Dragon Coaster)',
+
+    'Giant Ferris Wheel':
+        'ชิงช้าสวรรค์ยักษ์ (Giant Ferris Wheel)',
+
+    'Dino Water Splash':
+        'ล่องแก่งไดโนเสาร์ (Dino Water Splash)',
+
+    'Grand Castle':
+        'ปราสาทเทพนิยาย (Grand Castle)',
+
+    'Carousel':
+        'ม้าหมุนเวทมนตร์ (Carousel)',
+
+    'Sky Drop':
+        'หอคอยท้าความสูง (Sky Drop)',
+
+    'Haunted Mansion':
+        'บ้านผีสิง (Haunted Mansion)',
+
+    'Food Plaza':
+        'ศูนย์อาหารพลาซ่า (Food Plaza)',
+
+    'Entrance':
+        'ประตูทางเข้าหลัก (Entrance)'
+};
         function swapLocations() {
             const temp = selectedStartKey;
             selectedStartKey = selectedDestKey;
