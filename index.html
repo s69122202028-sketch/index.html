@@ -442,6 +442,23 @@
                 <div class="grid md:grid-cols-3 gap-6" id="route-cards-container">
                     <!-- Dynamic cards injected via JS -->
                 </div>
+                <!-- ALL POSSIBLE PATHS -->
+<div class="mt-8 bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+
+    <h3 class="font-bold text-purple-800 mb-2">
+        <i class="fa-solid fa-diagram-project mr-2"></i>
+        เส้นทางทั้งหมดที่สามารถเดินได้
+    </h3>
+
+    <p class="text-xs text-gray-500 mb-4">
+        แสดงทุก Path ที่เชื่อมต่อจากจุดเริ่มต้นไปยังจุดหมาย
+    </p>
+
+    <div id="all-paths-container"
+         class="space-y-2">
+    </div>
+
+</div>
 
                 <!-- Dijkstra Algorithm Concept Card -->
                 <div class="mt-8 bg-blue-50/80 border border-blue-200 rounded-2xl p-5 text-xs text-blue-900 hidden">
@@ -998,8 +1015,9 @@ function runDFSExample() {
                         let weight = 0;
                         if (costType === 'fastest') {
                             weight = edge.walkTime; // Focus on shortest walk
-                        } else if (costType === 'minQueue') {
-                            weight = edge.walkTime + edge.queueTime; // Focus on queue time
+                       } else if (costType === 'minQueue') {
+                            weight = edge.queueTime;
+                        }
                         } else {
                             weight = edge.walkTime + (edge.queueTime * 0.5); // Balanced
                         }
@@ -1111,6 +1129,175 @@ function dfs(start, target) {
     }
     const found = search(start);
     return found ? path : [];
+}
+        // =========================
+// FIND ALL SIMPLE PATHS
+// =========================
+function findAllPaths(start, target) {
+
+    const allPaths = [];
+
+    function search(current, path, visited) {
+
+        // ถ้าถึงปลายทาง
+        if (current === target) {
+            allPaths.push([...path]);
+            return;
+        }
+
+        const neighbors = parkGraph[current] || [];
+
+        for (const edge of neighbors) {
+
+            const next = edge.to;
+
+            // ป้องกันการวนกลับเป็นวงกลม
+            if (visited.has(next)) {
+                continue;
+            }
+
+            visited.add(next);
+            path.push(next);
+
+            search(next, path, visited);
+
+            path.pop();
+            visited.delete(next);
+        }
+    }
+
+    search(
+        start,
+        [start],
+        new Set([start])
+    );
+
+    return allPaths;
+}
+        function calculatePathCost(path, costType) {
+
+    let walkTime = 0;
+    let queueTime = 0;
+    let cost = 0;
+
+    for (let i = 0; i < path.length - 1; i++) {
+
+        const from = path[i];
+        const to = path[i + 1];
+
+        const edge = parkGraph[from].find(
+            e => e.to === to
+        );
+
+        if (!edge) continue;
+
+        walkTime += edge.walkTime;
+        queueTime += edge.queueTime;
+
+        if (costType === "fastest") {
+
+            cost += edge.walkTime;
+
+        } else if (costType === "minQueue") {
+
+            cost += edge.queueTime;
+
+        } else {
+
+            cost += edge.walkTime +
+                    (edge.queueTime * 0.5);
+        }
+    }
+
+    return {
+        path,
+        cost,
+        totalWalkTime: walkTime,
+        totalQueueTime: queueTime,
+        totalTime: walkTime + queueTime
+    };
+}
+        function getAllRouteOptions(start, target, costType) {
+
+    const paths = findAllPaths(start, target);
+
+    return paths
+        .map(path => calculatePathCost(path, costType))
+        .sort((a, b) => a.cost - b.cost);
+}
+        function renderAllPaths() {
+
+    const container =
+        document.getElementById("all-paths-container");
+
+    if (!container) return;
+
+    const paths = findAllPaths(
+        selectedStartKey,
+        selectedDestKey
+    );
+
+    if (paths.length === 0) {
+
+        container.innerHTML = `
+            <div class="text-sm text-gray-500">
+                ไม่พบเส้นทาง
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = paths.map(
+        (path, index) => {
+
+            const data =
+                calculatePathCost(path, "balanced");
+
+            return `
+                <div class="
+                    bg-white
+                    rounded-xl
+                    p-3
+                    border
+                    border-purple-100
+                    hover:border-purple-300
+                    transition
+                ">
+
+                    <div class="flex justify-between items-center mb-1">
+
+                        <span class="text-xs font-bold text-purple-600">
+                            Path ${index + 1}
+                        </span>
+
+                        <span class="text-[10px] text-gray-400">
+                            ${data.totalWalkTime} นาทีเดิน
+                        </span>
+
+                    </div>
+
+                    <div class="font-mono text-xs text-gray-700">
+
+                        ${path.map(node => `
+                            <span class="
+                                inline-block
+                                bg-purple-100
+                                text-purple-600
+                                px-2
+                                py-1
+                                rounded
+                                mr-1
+                                mb-1
+                            ">
+                                ${node}
+                            </span>
+                        `).join(" → ")}
+                    </div>
+                </div>
+            `;
+        }
+    ).join("");
 }
         function goToScreen(screenNumber) {
             // Toggle screen visibility
