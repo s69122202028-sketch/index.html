@@ -275,7 +275,7 @@
                         <!-- Search Button -->
                         <div class="pt-2">
                             <button onclick="calculateAndGoToScreen2()" class="w-full btn-gradient text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-base">
-                                <i class="fa-solid fa-route"></i> ค้นหาเส้นทางที่ดีที่สุด 
+                                <i class="fa-solid fa-route"></i> ค้นหาเส้นทางทางเลือก
                             </button>
                         </div>
                         <!-- Attraction Gallery -->
@@ -426,7 +426,7 @@
                 <div class="flex flex-wrap justify-between items-center mb-6 gap-2 border-b pb-4">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <i class="fa-solid fa-code-compare text-purple-400"></i> ผลการเปรียบเทียบเส้นทาง 
+                            <i class="fa-solid fa-code-compare text-purple-400"></i> เปรียบเทียบเส้นทางทางเลือก (Alternative Paths)
                         </h2>
                         <p class="text-xs text-gray-500">
                             จาก <span id="route-start-label" class="font-bold text-purple-500"></span> ถึง <span id="route-dest-label" class="font-bold text-pink-400"></span>
@@ -1297,6 +1297,78 @@ function findAllPaths(start, target) {
         }
     ).join("");
 }
+        // =========================
+// หาเส้นทางหลาย Path โดยไม่เรียงตาม Cost
+// =========================
+function findAlternativePaths(start, target, maxPaths = 3) {
+    const paths = [];
+
+    function search(current, path) {
+
+        // ถึงปลายทาง
+        if (current === target) {
+            paths.push([...path]);
+            return;
+        }
+
+        // ถ้าได้ครบจำนวน Path ที่ต้องการแล้ว
+        if (paths.length >= maxPaths) return;
+
+        const neighbors = parkGraph[current] || [];
+
+        for (const edge of neighbors) {
+
+            // ห้ามวนกลับไป Node ที่มีอยู่ใน Path แล้ว
+            if (!path.includes(edge.to)) {
+
+                path.push(edge.to);
+
+                search(edge.to, path);
+
+                path.pop();
+
+                // ได้ครบ 3 Path แล้วหยุด
+                if (paths.length >= maxPaths) return;
+            }
+        }
+    }
+
+    search(start, [start]);
+
+    return paths;
+}
+
+
+// =========================
+// แปลง Path เป็นข้อมูล Route
+// =========================
+function createRouteData(path) {
+
+    let totalWalkTime = 0;
+    let totalQueueTime = 0;
+
+    for (let i = 0; i < path.length - 1; i++) {
+
+        const current = path[i];
+        const next = path[i + 1];
+
+        const edge = parkGraph[current].find(
+            e => e.to === next
+        );
+
+        if (edge) {
+            totalWalkTime += edge.walkTime;
+            totalQueueTime += edge.queueTime;
+        }
+    }
+
+    return {
+        path: path,
+        totalWalkTime: totalWalkTime,
+        totalQueueTime: totalQueueTime,
+        totalTime: totalWalkTime + totalQueueTime
+    };
+}
         function goToScreen(screenNumber) {
             // Toggle screen visibility
             for (let i = 1; i <= 4; i++) {
@@ -1519,24 +1591,84 @@ function findAllPaths(start, target) {
                 alert('เครื่องเล่นนี้ยังไม่มีเส้นทางเชื่อมต่อในระบบ กรุณาเลือกจุดหมายอื่น');
                 return;
             }
-            
-            // Run Dijkstra for 3 scenarios
-            calculatedRoutes = {
-                fastest: runDijkstra(selectedStartKey, selectedDestKey, 'fastest'),
-                minQueue: runDijkstra(selectedStartKey, selectedDestKey, 'minQueue'),
-                balanced: runDijkstra(selectedStartKey, selectedDestKey, 'balanced')
-            };
+            // หา 3 Path ทางเลือก
+// ไม่เรียงตาม Cost และไม่บังคับให้เป็น Shortest Path
+const alternativePaths = findAlternativePaths(
+    selectedStartKey,
+    selectedDestKey,
+    3
+);
+calculatedRoutes = {};
 
+alternativePaths.forEach((path, index) => {
+    calculatedRoutes[`route${index + 1}`] =
+        createRouteData(path);
+});
+if (alternativePaths.length === 0) {
+    alert('ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดหมาย');
+    return;
+}
+container.innerHTML = alternativePaths.map((path, index) => {
+
+    const routeKey = `route${index + 1}`;
+
+    return renderRouteCard(
+        routeKey,
+        `🛣️ เส้นทางทางเลือกที่ ${index + 1}`,
+        'เลือก Path นี้ได้โดยไม่ต้องยึด Cost ต่ำที่สุด',
+        calculatedRoutes[routeKey],
+        index === 0
+            ? 'border-purple-500'
+            : index === 1
+                ? 'border-pink-500'
+                : 'border-blue-500',
+        index === 0
+            ? 'bg-purple-500'
+            : index === 1
+                ? 'bg-pink-500'
+                : 'bg-blue-500'
+    );
+
+}).join('');
+// สร้างข้อมูล Route ทั้ง 3 เส้นทาง
+calculatedRoutes = {};
+
+alternativePaths.forEach((path, index) => {
+    calculatedRoutes[`route${index + 1}`] =
+        createRouteData(path);
+});
             document.getElementById('route-start-label').innerText = selectedStartKey;
             document.getElementById('route-dest-label').innerText = selectedDestKey;
 
             const container = document.getElementById('route-cards-container');
             container.innerHTML = `
-                ${renderRouteCard('fastest', ' เส้นทางเดินเร็วที่สุด', 'เน้นระยะเวลาเดินสั้นที่สุด', calculatedRoutes.fastest, 'border-purple-400', 'bg-purple-400')}
-                ${renderRouteCard('minQueue', ' เส้นทางเวลารอน้อยสุด', 'เลือกทางเดินที่คิวยาวน้อยกว่า', calculatedRoutes.minQueue, 'border-pink-500', 'bg-pink-500')}
-                ${renderRouteCard('balanced', ' เส้นทางสมดุลที่สุด', 'สมดุลระหว่างเวลาเดินและเวลารอคิว', calculatedRoutes.balanced, 'border-blue-400', 'bg-blue-400')}
-            `;
+    ${renderRouteCard(
+        'route1',
+        ' เส้นทางทางเลือกที่ 1',
+        'Path ทางเลือกสำหรับการเดินทาง',
+        calculatedRoutes.route1,
+        'border-purple-500',
+        'bg-purple-500'
+    )}
 
+    ${renderRouteCard(
+        'route2',
+        ' เส้นทางทางเลือกที่ 2',
+        'Path ทางเลือกสำหรับการเดินทาง',
+        calculatedRoutes.route2,
+        'border-pink-500',
+        'bg-pink-500'
+    )}
+
+    ${renderRouteCard(
+        'route3',
+        ' เส้นทางทางเลือกที่ 3',
+        'Path ทางเลือกสำหรับการเดินทาง',
+        calculatedRoutes.route3,
+        'border-blue-500',
+        'bg-blue-500'
+    )}
+`;
             goToScreen(2);
         }
 
@@ -1817,9 +1949,10 @@ function findAllPaths(start, target) {
             if (!route) return;
 
             document.getElementById('ticket-route-name').innerText = `${selectedStartKey} ➔ ${selectedDestKey}`;
-            document.getElementById('ticket-mode-name').innerText = 
-                activeRouteOption === 'fastest' ? 'เดินเร็วที่สุด' :
-                activeRouteOption === 'minQueue' ? 'เวลารอน้อยสุด' : 'เส้นทางสมดุล';
+            document.getElementById('ticket-mode-name').innerText =
+    activeRouteOption === 'route1' ? 'เส้นทางทางเลือกที่ 1' :
+    activeRouteOption === 'route2' ? 'เส้นทางทางเลือกที่ 2' :
+    'เส้นทางทางเลือกที่ 3';
 
             document.getElementById('ticket-walk-time').innerText = route.totalWalkTime;
             document.getElementById('ticket-queue-time').innerText = route.totalQueueTime;
