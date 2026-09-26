@@ -1300,25 +1300,32 @@ function findAllPaths(start, target) {
         // =========================
 // หาเส้นทางหลาย Path โดยไม่เรียงตาม Cost
 // =========================
+// ==========================================
+// หา 3 Alternative Paths
+// เรียงจากเส้นทางสั้นที่สุด → ยาวขึ้น
+// โดยใช้ "เวลาเดิน" เป็นตัววัดระยะทาง
+// ไม่ใช้ Queue Time เป็นตัวจัดอันดับ
+// ==========================================
 function findAlternativePaths(start, target, maxPaths = 3) {
-    const paths = [];
 
+    const allPaths = [];
+
+    // ------------------------------------------
+    // 1. ค้นหา Path ทั้งหมดด้วย DFS
+    // ------------------------------------------
     function search(current, path) {
 
-        // ถึงปลายทาง
+        // ถึงจุดหมาย
         if (current === target) {
-            paths.push([...path]);
+            allPaths.push([...path]);
             return;
         }
-
-        // ถ้าได้ครบจำนวน Path ที่ต้องการแล้ว
-        if (paths.length >= maxPaths) return;
 
         const neighbors = parkGraph[current] || [];
 
         for (const edge of neighbors) {
 
-            // ห้ามวนกลับไป Node ที่มีอยู่ใน Path แล้ว
+            // ป้องกันการวน Loop
             if (!path.includes(edge.to)) {
 
                 path.push(edge.to);
@@ -1326,19 +1333,96 @@ function findAlternativePaths(start, target, maxPaths = 3) {
                 search(edge.to, path);
 
                 path.pop();
-
-                // ได้ครบ 3 Path แล้วหยุด
-                if (paths.length >= maxPaths) return;
             }
         }
     }
 
     search(start, [start]);
 
-    return paths;
+
+    // ------------------------------------------
+    // 2. ถ้าไม่มี Path
+    // ------------------------------------------
+    if (allPaths.length === 0) {
+        return [];
+    }
+
+
+    // ------------------------------------------
+    // 3. คำนวณเวลาเดินของแต่ละ Path
+    // ------------------------------------------
+    const pathData = allPaths.map(path => {
+
+        let walkTime = 0;
+
+        for (let i = 0; i < path.length - 1; i++) {
+
+            const current = path[i];
+            const next = path[i + 1];
+
+            const edge = (parkGraph[current] || [])
+                .find(e => e.to === next);
+
+            if (edge) {
+                walkTime += edge.walkTime;
+            }
+        }
+
+        return {
+            path: path,
+            walkTime: walkTime
+        };
+    });
+
+
+    // ------------------------------------------
+    // 4. เรียงจากระยะทางสั้นที่สุด → ยาวที่สุด
+    // ------------------------------------------
+    pathData.sort((a, b) => {
+
+        return a.walkTime - b.walkTime;
+
+    });
+
+
+    // ------------------------------------------
+    // 5. กำหนดระยะทางสูงสุดที่ยอมรับได้
+    //
+    // Path ที่อ้อมมากกว่า 1.5 เท่า
+    // ของ Path ที่สั้นที่สุด จะไม่ถูกเลือก
+    // ------------------------------------------
+    const shortestWalkTime =
+        pathData[0].walkTime;
+
+    const maxAllowedWalkTime =
+        shortestWalkTime * 1.5;
+
+
+    // ------------------------------------------
+    // 6. เลือกเฉพาะ Path ที่ไม่อ้อมเกินไป
+    // ------------------------------------------
+    let selectedPaths = pathData.filter(
+        item =>
+            item.walkTime <= maxAllowedWalkTime
+    );
+    // ------------------------------------------
+    // 7. ถ้ามี Path ที่ผ่านเกณฑ์น้อยกว่า 3
+    // ให้เติม Path ถัดไปจนได้สูงสุด 3 Path
+    // ------------------------------------------
+    if (selectedPaths.length < maxPaths) {
+
+        selectedPaths = pathData.slice(
+            0,
+            maxPaths
+        );
+    }
+    // ------------------------------------------
+    // 8. ส่งเฉพาะ Array ของ Path กลับไป
+    // ------------------------------------------
+    return selectedPaths
+        .slice(0, maxPaths)
+        .map(item => item.path);
 }
-
-
 // =========================
 // แปลง Path เป็นข้อมูล Route
 // =========================
@@ -1583,111 +1667,154 @@ function createRouteData(path) {
         /* ==================== 5. CALCULATE & COMPARE SCREEN ==================== */
         function calculateAndGoToScreen2() {
 
-    // ตรวจสอบว่าต้นทางกับปลายทางเหมือนกันหรือไม่
+    // ตรวจสอบจุดเริ่มต้นและจุดหมาย
     if (selectedStartKey === selectedDestKey) {
-        alert('กรุณาเลือกจุดเริ่มต้นและจุดหมายปลายทางให้ต่างกัน');
+
+        alert(
+            'กรุณาเลือกจุดเริ่มต้นและจุดหมายปลายทางให้ต่างกัน'
+        );
+
         return;
     }
 
-    // ตรวจสอบว่า Vertex มีอยู่ใน Graph หรือไม่
-    if (!parkGraph[selectedStartKey] || !parkGraph[selectedDestKey]) {
-        alert('เครื่องเล่นนี้ยังไม่มีเส้นทางเชื่อมต่อในระบบ กรุณาเลือกจุดหมายอื่น');
+
+    // ตรวจสอบ Vertex
+    if (
+        !parkGraph[selectedStartKey] ||
+        !parkGraph[selectedDestKey]
+    ) {
+
+        alert(
+            'เครื่องเล่นนี้ยังไม่มีเส้นทางเชื่อมต่อในระบบ กรุณาเลือกจุดหมายอื่น'
+        );
+
         return;
     }
-
     // ==========================================
-    // 1. หา Path ทางเลือก 3 เส้นทาง
-    // ไม่เรียงตาม Cost
-    // ไม่บังคับให้เป็น Shortest Path
+    // หา 3 Alternative Paths
+    // เรียงจากใกล้ที่สุด → ไกลขึ้น
     // ==========================================
 
-    const alternativePaths = findAlternativePaths(
-        selectedStartKey,
-        selectedDestKey,
-        3
-    );
+    const alternativePaths =
+        findAlternativePaths(
+            selectedStartKey,
+            selectedDestKey,
+            3
+        );
 
-    // ถ้าไม่พบเส้นทาง
+
+    // ไม่มี Path
     if (alternativePaths.length === 0) {
-        alert('ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดหมาย');
+
+        alert(
+            'ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดหมาย'
+        );
+
         return;
     }
 
+
     // ==========================================
-    // 2. สร้างข้อมูล Route
+    // สร้างข้อมูล Route
     // ==========================================
 
     calculatedRoutes = {};
 
-    alternativePaths.forEach((path, index) => {
+    alternativePaths.forEach(
+        (path, index) => {
 
-        calculatedRoutes[`route${index + 1}`] =
-            createRouteData(path);
+            calculatedRoutes[
+                `route${index + 1}`
+            ] = createRouteData(path);
 
-    });
+        }
+    );
 
-    // ==========================================
-    // 3. แสดงชื่อจุดเริ่มต้น / จุดหมาย
-    // ==========================================
-
-    document.getElementById('route-start-label').innerText =
-        selectedStartKey;
-
-    document.getElementById('route-dest-label').innerText =
-        selectedDestKey;
 
     // ==========================================
-    // 4. หา Container ก่อนใช้งาน
+    // แสดง Start / Destination
+    // ==========================================
+
+    document.getElementById(
+        'route-start-label'
+    ).innerText = selectedStartKey;
+
+
+    document.getElementById(
+        'route-dest-label'
+    ).innerText = selectedDestKey;
+
+
+    // ==========================================
+    // หา Container
     // ==========================================
 
     const container =
-        document.getElementById('route-cards-container');
+        document.getElementById(
+            'route-cards-container'
+        );
+
 
     if (!container) {
+
         console.error(
             'ไม่พบ route-cards-container'
         );
+
         return;
     }
 
-    // ==========================================
-    // 5. สร้าง Route Cards
-    // ==========================================
-
-    container.innerHTML = alternativePaths.map(
-        (path, index) => {
-
-            const routeKey =
-                `route${index + 1}`;
-
-            const borderColor =
-                index === 0
-                    ? 'border-purple-500'
-                    : index === 1
-                        ? 'border-pink-500'
-                        : 'border-blue-500';
-
-            const badgeColor =
-                index === 0
-                    ? 'bg-purple-500'
-                    : index === 1
-                        ? 'bg-pink-500'
-                        : 'bg-blue-500';
-
-            return renderRouteCard(
-                routeKey,
-                `เส้นทางทางเลือกที่ ${index + 1}`,
-                'Path ทางเลือกสำหรับการเดินทาง',
-                calculatedRoutes[routeKey],
-                borderColor,
-                badgeColor
-            );
-
-        }
-    ).join('');
 
     // ==========================================
-    // 6. ไปหน้า Screen 2
+    // แสดง 3 Route Cards
+    // ==========================================
+
+    container.innerHTML =
+        alternativePaths.map(
+            (path, index) => {
+
+                const routeKey =
+                    `route${index + 1}`;
+
+
+                const borderColor =
+                    index === 0
+                        ? 'border-purple-500'
+                        : index === 1
+                            ? 'border-pink-500'
+                            : 'border-blue-500';
+
+
+                const badgeColor =
+                    index === 0
+                        ? 'bg-purple-500'
+                        : index === 1
+                            ? 'bg-pink-500'
+                            : 'bg-blue-500';
+
+
+                return renderRouteCard(
+
+                    routeKey,
+
+                    `🛣️ เส้นทางทางเลือกที่ ${index + 1}`,
+
+                    'เรียงจากเส้นทางที่ใกล้ที่สุด',
+
+                    calculatedRoutes[routeKey],
+
+                    borderColor,
+
+                    badgeColor
+
+                );
+
+            }
+        ).join('');
+
+
+    // ==========================================
+    // ไป Screen 2
     // ==========================================
 
     goToScreen(2);
