@@ -1822,13 +1822,13 @@ function createRouteData(path) {
 
         function renderRouteCard(typeKey, title, desc, routeData, borderColor, badgeColor) {
             return `
-                <div class="bg-white rounded-2xl p-5 border-2 ${borderColor} shadow-lg flex flex-col justify-between hover:scale-105 transition-transform duration-300">
+                <div class="bg-white rounded-2xl p-4 border-2 ${borderColor} shadow-lg flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300">
                     <div>
-                        <span class="text-[10px] text-white font-bold px-2.5 py-1 rounded-full ${badgeColor} inline-block mb-2">
-                            Path ทางเลือก
+                       <span class="text-xs text-white font-bold px-3 py-1.5 rounded-full ${badgeColor} inline-block mb-2">
+                            เส้นทางเลือก ${typeKey.replace('route', '')}
                         </span>
-                        <h3 class="font-bold text-gray-800 text-lg mb-1">${title}</h3>
-                        <p class="text-xs text-gray-500 mb-4">${desc}</p>
+                        <h3 class="hidden">${title}</h3>
+                        <p class="hidden">${desc}</p>
 
                         <div class="space-y-2 bg-gray-50 p-3 rounded-xl mb-4 border border-gray-100 text-xs">
                             <div class="flex justify-between">
@@ -1846,13 +1846,16 @@ function createRouteData(path) {
                         </div>
 
                         <div class="text-xs text-gray-600">
-                            <span class="font-semibold block mb-1">ลำดับโหนด (Path Nodes):</span>
-                            <div class="flex flex-wrap gap-1 font-mono text-[11px]">
-                                ${routeData.path.map(p => `<span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded">${p}</span>`).join(' &rarr; ')}
+                            <span class="hidden">ลำดับโหนด (Path Nodes):</span>
+                         <div class="flex flex-wrap gap-1.5 font-mono text-xs">
+                            ${routeData.path.map(p => `
+                                <span class="bg-purple-100 text-purple-600 px-2.5 py-1 rounded-md">
+                                    ${p}
+                                </span>
+                           `).join(' &rarr; ')}
                             </div>
                         </div>
                     </div>
-
                     <button onclick="selectRouteOption('${typeKey}')" class="mt-6 w-full py-2.5 rounded-xl font-bold text-xs text-white ${badgeColor} shadow hover:opacity-90 transition">
                         เลือกเส้นทางนี้
                     </button>
