@@ -441,8 +441,9 @@
                 <div class="grid md:grid-cols-3 gap-6" id="route-cards-container">
                     <!-- Dynamic cards injected via JS -->
                 </div>
-                <!-- ALL POSSIBLE PATHS -->
-<div class="mt-8 bg-purple-50/70 border border-purple-200 rounded-2xl p-5">
+                <!-- ALL POSSIBLE PATHS - HIDDEN -->
+<div id="all-paths-section"
+     class="mt-8 bg-purple-50/70 border border-purple-200 rounded-2xl p-5 hidden">
 
     <h3 class="font-bold text-purple-800 mb-2">
         <i class="fa-solid fa-diagram-project mr-2"></i>
@@ -456,7 +457,6 @@
     <div id="all-paths-container"
          class="space-y-2">
     </div>
-
 </div>
 
                 <!-- Dijkstra Algorithm Concept Card -->
@@ -1064,7 +1064,7 @@ function runDFSExample() {
         let selectedDestKey = "Dragon Coaster";
         let currentTargetInput = "start"; // 'start' or 'dest'
         let calculatedRoutes = {};
-        let activeRouteOption = "fastest"; // 'fastest', 'minQueue', 'balanced'
+        let activeRouteOption = "route1"; // 'fastest', 'minQueue', 'balanced'
 
         // =========================
         // BFS - Breadth First Search
@@ -1582,102 +1582,123 @@ function createRouteData(path) {
 
         /* ==================== 5. CALCULATE & COMPARE SCREEN ==================== */
         function calculateAndGoToScreen2() {
-            if (selectedStartKey === selectedDestKey) {
-                alert('กรุณาเลือกจุดเริ่มต้นและจุดหมายปลายทางให้ต่างกัน');
-                return;
-            }
 
-            if (!parkGraph[selectedStartKey] || !parkGraph[selectedDestKey]) {
-                alert('เครื่องเล่นนี้ยังไม่มีเส้นทางเชื่อมต่อในระบบ กรุณาเลือกจุดหมายอื่น');
-                return;
-            }
-            // หา 3 Path ทางเลือก
-// ไม่เรียงตาม Cost และไม่บังคับให้เป็น Shortest Path
-const alternativePaths = findAlternativePaths(
-    selectedStartKey,
-    selectedDestKey,
-    3
-);
-calculatedRoutes = {};
+    // ตรวจสอบว่าต้นทางกับปลายทางเหมือนกันหรือไม่
+    if (selectedStartKey === selectedDestKey) {
+        alert('กรุณาเลือกจุดเริ่มต้นและจุดหมายปลายทางให้ต่างกัน');
+        return;
+    }
 
-alternativePaths.forEach((path, index) => {
-    calculatedRoutes[`route${index + 1}`] =
-        createRouteData(path);
-});
-if (alternativePaths.length === 0) {
-    alert('ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดหมาย');
-    return;
-}
-container.innerHTML = alternativePaths.map((path, index) => {
+    // ตรวจสอบว่า Vertex มีอยู่ใน Graph หรือไม่
+    if (!parkGraph[selectedStartKey] || !parkGraph[selectedDestKey]) {
+        alert('เครื่องเล่นนี้ยังไม่มีเส้นทางเชื่อมต่อในระบบ กรุณาเลือกจุดหมายอื่น');
+        return;
+    }
 
-    const routeKey = `route${index + 1}`;
+    // ==========================================
+    // 1. หา Path ทางเลือก 3 เส้นทาง
+    // ไม่เรียงตาม Cost
+    // ไม่บังคับให้เป็น Shortest Path
+    // ==========================================
 
-    return renderRouteCard(
-        routeKey,
-        `🛣️ เส้นทางทางเลือกที่ ${index + 1}`,
-        'เลือก Path นี้ได้โดยไม่ต้องยึด Cost ต่ำที่สุด',
-        calculatedRoutes[routeKey],
-        index === 0
-            ? 'border-purple-500'
-            : index === 1
-                ? 'border-pink-500'
-                : 'border-blue-500',
-        index === 0
-            ? 'bg-purple-500'
-            : index === 1
-                ? 'bg-pink-500'
-                : 'bg-blue-500'
+    const alternativePaths = findAlternativePaths(
+        selectedStartKey,
+        selectedDestKey,
+        3
     );
 
-}).join('');
-// สร้างข้อมูล Route ทั้ง 3 เส้นทาง
-calculatedRoutes = {};
+    // ถ้าไม่พบเส้นทาง
+    if (alternativePaths.length === 0) {
+        alert('ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดหมาย');
+        return;
+    }
 
-alternativePaths.forEach((path, index) => {
-    calculatedRoutes[`route${index + 1}`] =
-        createRouteData(path);
-});
-            document.getElementById('route-start-label').innerText = selectedStartKey;
-            document.getElementById('route-dest-label').innerText = selectedDestKey;
+    // ==========================================
+    // 2. สร้างข้อมูล Route
+    // ==========================================
 
-            const container = document.getElementById('route-cards-container');
-            container.innerHTML = `
-    ${renderRouteCard(
-        'route1',
-        ' เส้นทางทางเลือกที่ 1',
-        'Path ทางเลือกสำหรับการเดินทาง',
-        calculatedRoutes.route1,
-        'border-purple-500',
-        'bg-purple-500'
-    )}
+    calculatedRoutes = {};
 
-    ${renderRouteCard(
-        'route2',
-        ' เส้นทางทางเลือกที่ 2',
-        'Path ทางเลือกสำหรับการเดินทาง',
-        calculatedRoutes.route2,
-        'border-pink-500',
-        'bg-pink-500'
-    )}
+    alternativePaths.forEach((path, index) => {
 
-    ${renderRouteCard(
-        'route3',
-        ' เส้นทางทางเลือกที่ 3',
-        'Path ทางเลือกสำหรับการเดินทาง',
-        calculatedRoutes.route3,
-        'border-blue-500',
-        'bg-blue-500'
-    )}
-`;
-            goToScreen(2);
+        calculatedRoutes[`route${index + 1}`] =
+            createRouteData(path);
+
+    });
+
+    // ==========================================
+    // 3. แสดงชื่อจุดเริ่มต้น / จุดหมาย
+    // ==========================================
+
+    document.getElementById('route-start-label').innerText =
+        selectedStartKey;
+
+    document.getElementById('route-dest-label').innerText =
+        selectedDestKey;
+
+    // ==========================================
+    // 4. หา Container ก่อนใช้งาน
+    // ==========================================
+
+    const container =
+        document.getElementById('route-cards-container');
+
+    if (!container) {
+        console.error(
+            'ไม่พบ route-cards-container'
+        );
+        return;
+    }
+
+    // ==========================================
+    // 5. สร้าง Route Cards
+    // ==========================================
+
+    container.innerHTML = alternativePaths.map(
+        (path, index) => {
+
+            const routeKey =
+                `route${index + 1}`;
+
+            const borderColor =
+                index === 0
+                    ? 'border-purple-500'
+                    : index === 1
+                        ? 'border-pink-500'
+                        : 'border-blue-500';
+
+            const badgeColor =
+                index === 0
+                    ? 'bg-purple-500'
+                    : index === 1
+                        ? 'bg-pink-500'
+                        : 'bg-blue-500';
+
+            return renderRouteCard(
+                routeKey,
+                `เส้นทางทางเลือกที่ ${index + 1}`,
+                'Path ทางเลือกสำหรับการเดินทาง',
+                calculatedRoutes[routeKey],
+                borderColor,
+                badgeColor
+            );
+
         }
+    ).join('');
+
+    // ==========================================
+    // 6. ไปหน้า Screen 2
+    // ==========================================
+
+    goToScreen(2);
+}
 
         function renderRouteCard(typeKey, title, desc, routeData, borderColor, badgeColor) {
             return `
                 <div class="bg-white rounded-2xl p-5 border-2 ${borderColor} shadow-lg flex flex-col justify-between hover:scale-105 transition-transform duration-300">
                     <div>
                         <span class="text-[10px] text-white font-bold px-2.5 py-1 rounded-full ${badgeColor} inline-block mb-2">
-                            Dijkstra Computed
+                            Path ทางเลือก
                         </span>
                         <h3 class="font-bold text-gray-800 text-lg mb-1">${title}</h3>
                         <p class="text-xs text-gray-500 mb-4">${desc}</p>
